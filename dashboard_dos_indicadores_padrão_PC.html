@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consolidado de Produtividade e Desempenho · Ipesaúde</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script>
+  if (typeof Chart === 'undefined') { document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"><\/script>'); }
+</script>
+<script>
+  if (typeof ChartDataLabels === 'undefined') { document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"><\/script>'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f; --bg-soft:#0d0d13; --card:#14141c; --card-hover:#181822;
+    --border:rgba(255,255,255,0.07); --border-soft:rgba(255,255,255,0.04);
+    --text:#f2f2f7; --text-dim:#9797a6; --text-faint:#5c5c6b;
+    --teal:#2dd9c3; --blue:#5b9dff; --amber:#f5b342; --red:#f2495c; --green:#3ddc84; --purple:#a78bfa; --pink:#f28fa3;
+    --radius:16px; --radius-sm:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(45,217,195,0.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(91,157,255,0.07), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:'Inter',-apple-system,sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1440px;margin:0 auto;padding:36px 28px 80px;}
+  header{
+    position:relative; padding:38px 40px; border-radius:var(--radius);
+    background:linear-gradient(135deg, rgba(45,217,195,0.09), rgba(91,157,255,0.05) 60%, transparent);
+    border:1px solid var(--border); overflow:hidden; margin-bottom:26px;
+    opacity:0; animation:fadeUp .7s ease forwards;
+  }
+  header::before{content:''; position:absolute; inset:0; background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0); background-size:22px 22px; pointer-events:none;}
+  .header-top{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; position:relative;}
+  .header-titles{flex:1; min-width:0;}
+  .header-logos{
+    display:flex; align-items:center; gap:26px; flex-shrink:0; position:relative;
+  }
+  .header-logos img{width:auto; display:block; opacity:0.95; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.45));}
+  .header-logos img.logo-rr{height:50px;}
+  .header-logos img.logo-ipes{height:44px;}
+  @media(max-width:720px){.header-top{flex-direction:column;} .header-logos{margin-top:16px; align-self:flex-start;}}
+  @media(max-width:460px){.header-logos{gap:18px;} .header-logos img.logo-rr{height:38px;} .header-logos img.logo-ipes{height:33px;}}
+  /* Logo RR — versão discreta que acompanha a rolagem, sem cartão pesado, só um leve realce ao passar o mouse */
+  .floating-logo-rr{
+    position:fixed; bottom:18px; right:18px; z-index:600;
+    display:flex; align-items:center; padding:4px;
+    opacity:0.55; transition:opacity .25s ease, transform .25s ease;
+  }
+  .floating-logo-rr:hover{opacity:1; transform:translateY(-2px);}
+  .floating-logo-rr img{height:50px; width:auto; display:block; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));}
+  @media print{.floating-logo-rr{display:none;}}
+  @media(max-width:720px){.floating-logo-rr{bottom:12px; right:12px;} .floating-logo-rr img{height:38px;}}
+  .eyebrow{font-size:11.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:10px;}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal); animation:blink 2s ease-in-out infinite;}
+  h1{font-size:36px; font-weight:800; margin:0 0 8px; letter-spacing:-0.02em; position:relative;}
+  header p.sub{color:var(--text-dim); font-size:14.5px; margin:0; max-width:680px; line-height:1.55; position:relative;}
+  .header-meta{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-top:14px; position:relative;}
+  .meta-period{font-size:17px; font-weight:800; color:var(--teal); letter-spacing:.2px; display:flex; align-items:center; gap:8px;}
+  .meta-period svg{flex-shrink:0;}
+  .meta-authors{display:flex; flex-direction:column; gap:5px;}
+  .meta-authors .author-line{font-size:13px; color:var(--text-dim); line-height:1.5;}
+  .meta-authors .author-line b{color:var(--text); font-weight:700;}
+  .meta-authors .author-line .role{color:var(--text-faint);}
+  .report-timestamp{font-size:10.5px; color:var(--text-faint); margin-top:8px; font-family:'JetBrains Mono',monospace; letter-spacing:.3px;}
+  .pulse-line{position:absolute; right:0; top:0; bottom:0; width:46%; opacity:.55; pointer-events:none;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+  /* TABS */
+  .tabs{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:30px; position:relative;}
+  .tab-btn{
+    background:var(--card); border:1px solid var(--border); color:var(--text-dim);
+    padding:13px 20px; border-radius:12px; font-size:13.5px; font-weight:700; cursor:pointer;
+    transition:all .2s ease; display:flex; align-items:center; gap:9px; letter-spacing:.2px;
+  }
+  .tab-btn .tdot{width:7px;height:7px;border-radius:50%; background:var(--text-faint); transition:background .2s;}
+  .tab-btn:hover{border-color:rgba(255,255,255,0.18); color:var(--text); transform:translateY(-1px);}
+  .tab-btn.active{background:var(--card-hover); border-color:var(--teal); color:var(--text); box-shadow:0 0 0 1px rgba(45,217,195,0.25), 0 8px 24px rgba(45,217,195,0.08);}
+  .tab-btn.active .tdot{background:var(--teal); box-shadow:0 0 8px var(--teal);}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(226px,1fr)); gap:16px; margin-bottom:34px;}
+  .kpi{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 20px 18px; position:relative; overflow:hidden; transition:transform .25s ease, border-color .25s ease, background .25s ease; opacity:0; animation:fadeUp .5s ease forwards;}
+  .kpi:hover{transform:translateY(-3px); border-color:rgba(255,255,255,0.16); background:var(--card-hover);}
+  .kpi::after{content:''; position:absolute; top:-30%; right:-20%; width:140px; height:140px; border-radius:50%; filter:blur(30px); opacity:.25; pointer-events:none;}
+  .kpi.c-teal::after{background:var(--teal);} .kpi.c-blue::after{background:var(--blue);} .kpi.c-amber::after{background:var(--amber);}
+  .kpi.c-red::after{background:var(--red);} .kpi.c-green::after{background:var(--green);} .kpi.c-purple::after{background:var(--purple);} .kpi.c-pink::after{background:var(--pink);}
+  .kpi-label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:10px;}
+  .kpi-value{font-size:28px; font-weight:800; letter-spacing:-0.02em; line-height:1; margin-bottom:8px; font-variant-numeric:tabular-nums;}
+  .kpi-delta{font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:5px;}
+  .kpi-delta.up{color:var(--green);} .kpi-delta.down{color:var(--red);} .kpi-delta.warn{color:var(--amber);} .kpi-delta.neutral{color:var(--text-dim);}
+  .kpi-note{font-size:11.5px; color:var(--text-faint); margin-top:6px; line-height:1.4;}
+
+  .section-title{display:flex; align-items:baseline; gap:10px; margin:40px 0 16px;}
+  .section-title h2{font-size:18.5px; font-weight:700; margin:0; letter-spacing:-0.01em;}
+  .section-title .tag{font-size:10.5px; color:var(--text-faint); font-family:'JetBrains Mono',monospace; letter-spacing:.5px; white-space:nowrap;}
+  .section-title::after{content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--border), transparent);}
+
+  .grid-2{display:grid; grid-template-columns:1.4fr 1fr; gap:18px;}
+  .grid-2b{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  @media(max-width:960px){.grid-2,.grid-2b,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px 20px; opacity:0; animation:fadeUp .5s ease forwards; transition:border-color .25s ease;}
+  .panel:hover{border-color:rgba(255,255,255,0.14);}
+  .panel-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; gap:10px; flex-wrap:wrap;}
+  .panel h3{font-size:15px; font-weight:700; margin:0 0 2px;}
+  .panel .desc{font-size:12px; color:var(--text-faint); margin-bottom:14px;}
+  .panel .chart-box{position:relative; width:100%;}
+  .insight{margin-top:14px; padding:12px 14px; border-radius:var(--radius-sm); background:var(--bg-soft); border:1px solid var(--border-soft); font-size:12.5px; color:var(--text-dim); line-height:1.55;}
+  .insight b{color:var(--text); font-weight:600;}
+  .insight.warn{border-color:rgba(245,179,66,0.25); background:rgba(245,179,66,0.08);} .insight.warn b{color:var(--amber);}
+  .insight.good{border-color:rgba(61,220,132,0.25); background:rgba(61,220,132,0.08);} .insight.good b{color:var(--green);}
+  .badge{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:.3px; white-space:nowrap;}
+  .badge.up{background:rgba(61,220,132,0.14); color:var(--green);} .badge.down{background:rgba(242,73,92,0.14); color:var(--red);}
+  .source-tag{font-size:10px; color:var(--text-faint); font-style:italic; margin-top:8px;}
+
+  .hl-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .hl-card{border-radius:var(--radius-sm); padding:14px 16px; border:1px solid var(--border); background:var(--bg-soft);}
+  .hl-card .hl-title{font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:10px;}
+  .hl-card.grow .hl-title{color:var(--green);} .hl-card.drop .hl-title{color:var(--red);}
+  .hl-row{display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border-soft); font-size:12.5px; gap:8px;}
+  .hl-row:last-child{border-bottom:none;}
+  .hl-row .name{color:var(--text-dim);}
+  .hl-row .val{font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .hl-card.grow .val{color:var(--green);} .hl-card.drop .val{color:var(--red);}
+
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th{text-align:left; color:var(--text-faint); font-weight:600; text-transform:uppercase; letter-spacing:.5px; font-size:10px; padding:8px 10px; border-bottom:1px solid var(--border);}
+  th.sortable-th{cursor:pointer; user-select:none; transition:color .15s ease;}
+  th.sortable-th:hover{color:var(--teal);}
+  th.sortable-th .sort-ind{color:var(--teal); font-size:9px;}
+  .glossary-box{margin-top:22px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 22px;}
+  .glossary-box summary{cursor:pointer; font-weight:700; font-size:13.5px; color:var(--teal); list-style:none; display:flex; align-items:center; gap:6px;}
+  .glossary-box summary::-webkit-details-marker{display:none;}
+  .glossary-box summary::before{content:'▸'; font-size:10px; transition:transform .15s ease;}
+  .glossary-box[open] summary::before{transform:rotate(90deg);}
+  .glossary-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; margin-top:14px; font-size:12px; color:var(--text-dim); line-height:1.6;}
+  .glossary-grid b{color:var(--text);}
+  @media(max-width:800px){.glossary-grid{grid-template-columns:1fr;}}
+  td{padding:9px 10px; border-bottom:1px solid var(--border-soft); color:var(--text-dim);}
+  tr:hover td{background:rgba(255,255,255,0.02); color:var(--text);}
+  @keyframes alertRowPulse{0%,100%{background-color:rgba(242,73,92,0.07);} 50%{background-color:rgba(242,73,92,0.16);}}
+  .row-alert td{background:rgba(242,73,92,0.08); animation:alertRowPulse 2.6s ease-in-out infinite;}
+  .row-alert td:first-child{color:var(--red); font-weight:700;}
+  .row-total td{background:rgba(255,255,255,0.035); border-top:2px solid rgba(255,255,255,0.12);}
+  .row-total:hover td{background:rgba(255,255,255,0.05);}
+  @keyframes kpiPulseGlow{0%,100%{box-shadow:0 0 0 rgba(242,73,92,0);} 50%{box-shadow:0 0 18px rgba(242,73,92,0.38);}}
+  .kpi.kpi-pulse{animation: fadeUp .5s ease forwards, kpiPulseGlow 2.8s ease-in-out infinite;}
+  @media (prefers-reduced-motion: reduce){
+    .row-alert td, .kpi.kpi-pulse{animation:none !important;}
+  }
+  .pill{font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;}
+  .pill.ok{background:rgba(61,220,132,0.14); color:var(--green);}
+  .pill.bad{background:rgba(242,73,92,0.14); color:var(--red);}
+  .pill.mid{background:rgba(245,179,66,0.14); color:var(--amber);}
+
+  .stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px;}
+  .stat-box{background:var(--bg-soft); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:14px 16px;}
+  .stat-box .n{font-size:22px; font-weight:800;} .stat-box .l{font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.5px; margin-top:4px;}
+  @media(max-width:960px){.stat-strip{grid-template-columns:1fr 1fr;}}
+
+  .person-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media(max-width:960px){.person-grid{grid-template-columns:1fr;}}
+  .person-card{background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px;}
+  .person-card h4{margin:0 0 10px; font-size:14.5px; color:var(--teal); font-weight:800; letter-spacing:.3px;}
+  .person-card ul{margin:0; padding-left:18px; font-size:12px; color:var(--text-dim); line-height:1.85;}
+  .person-card .total{margin-top:10px; font-size:12px; font-weight:700; color:var(--text);}
+  .med-detail summary{cursor:pointer; color:var(--teal); font-weight:600; font-size:11.5px; list-style:none; display:inline-flex; align-items:center; gap:4px;}
+  .med-detail summary::-webkit-details-marker{display:none;}
+  .med-detail summary::before{content:'▸'; font-size:9px; transition:transform .15s ease;}
+  .med-detail[open] summary::before{transform:rotate(90deg);}
+  .med-detail .items{margin-top:7px; font-size:11.5px; color:var(--text-dim); line-height:1.85; padding:8px 10px; background:var(--bg); border-radius:8px; border:1px solid var(--border-soft);}
+
+  #toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#1c1c28; border:1px solid rgba(255,255,255,0.14); color:var(--text); padding:12px 20px; border-radius:12px; font-size:13px; font-weight:500; box-shadow:0 10px 40px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:all .3s cubic-bezier(.4,0,.2,1); z-index:999; max-width:90%; text-align:center;}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  #toast b{color:var(--teal);}
+  footer{margin-top:50px; text-align:center; font-size:11.5px; color:var(--text-faint); padding-top:22px; border-top:1px solid var(--border-soft);}
+  .theme-section{display:none;}
+  .theme-section.active{display:block; animation:fadeUp .4s ease;}
+
+  @media print {
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+    html, body{ background:var(--bg) !important; }
+    body{
+      background:
+        radial-gradient(ellipse 900px 500px at 12% -8%, rgba(45,217,195,0.08), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 100% 0%, rgba(91,157,255,0.07), transparent 55%),
+        var(--bg) !important;
+    }
+    .wrap{ max-width:100%; padding:16px 18px; background:var(--bg) !important; }
+    .tabs, #exportPdfBtn, #toast{ display:none !important; }
+    .theme-section{ display:none !important; }
+    .theme-section.active{ display:block !important; page-break-before:always; background:var(--bg) !important; }
+    #section-overview.active{ page-break-before:auto; }
+    .kpi-grid{ page-break-inside:avoid; }
+    .panel, .kpi{ page-break-inside:avoid; break-inside:avoid; }
+    header{ animation:none; opacity:1; }
+    .kpi, .panel{ animation:none !important; opacity:1 !important; }
+    .row-alert td{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="floating-logo-rr" title="RR Auditoria">
+  <img class="logo-rr" src="data:image/png;base64,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" alt="Logo RR Auditoria">
+</div>
+
+
+  <header>
+    <svg class="pulse-line" viewBox="0 0 500 140" preserveAspectRatio="none">
+      <polyline points="0,70 60,70 80,70 95,20 110,120 125,70 160,70 180,70 195,40 210,100 225,70 500,70"
+        fill="none" stroke="#2dd9c3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        opacity="0.5" stroke-dasharray="900" stroke-dashoffset="900">
+        <animate attributeName="stroke-dashoffset" from="900" to="0" dur="2.6s" fill="freeze" />
+      </polyline>
+    </svg>
+    <div class="header-top">
+      <div class="header-titles">
+        <div class="eyebrow"><span class="dot"></span>IPESAÚDE · AUDITORIA E REGULAÇÃO</div>
+        <h1>Consolidado de Produtividade e Desempenho</h1>
+        <p class="sub">Auditoria e Regulação</p>
+        <div class="header-meta">
+          <div class="meta-period">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Abril – Junho 2026
+          </div>
+          <div class="meta-authors">
+            <div class="author-line">Desenvolvido por <b>Bruno Ribeiro de Souza</b> · <span class="role">Supervisor Administrativo de Perícia Interna</span></div>
+            <div class="author-line"><b>Rodrigo Ribeiro de Almeida</b> · <span class="role">Coordenação de Auditoria Médica, CRM/SE 6776</span></div>
+          </div>
+          <div class="report-timestamp">Relatório gerado em 14/07/2026</div>
+        </div>
+      </div>
+      <div class="header-logos">
+        <img class="logo-rr" src="data:image/png;base64,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" alt="Logo RR Auditoria">
+                <img class="logo-ipes" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJ8AAABoCAYAAADvjCJBAAAg60lEQVR4nO2dfXRfdZ3nX5OT283J7XYz3drpdrqdTI3d3k5tS0WBgoAOImB5WB5aARFccBjkMAwiw2DX4bgMMsBhRFB5FB0eBBRBoCIiAtbagW6ptXZ7a60x1hozOZlsNqc35uT+Ttw/3p/be3/3fn8PCUlLye99Tk6S+/C934fP9/P8/X7/6A9/+AOHKsI4mgbMBGbYTwvQZrdnAnOB0TqK6gYG7NkBYAgYtN99geeXJrDaDRj+6FAhvjCOFgILgQXAO4FZ9jMbEVwbMG2CPjcM9CHi67WfPuBnQBewLfD8PRP0rSmLNx3xhXHUAswDFgNHAe8BViCuNIoIA0QYnYgoOoEI2AP0A83290Cdn51p3ywhgp4P+IjQZ9nvFns2+d0EbAZeBX6EiHJP4PkjY2rwFMabgvjCOJoHvB94N7AcWILEXhewE/iV/b0XEVX3gRaFYRw1IzHebr8XAH8OLLJr04FtwBbgfwOvBJ7ffSDreKjhoBCf6WqLgBOA44A5wAiwC3GRLUAPMBh4/nClct4MME49AxHkCtSexYhLdwPPAhuA3YHn16N/ThkcUOIL42gBcAawDImzvcAPgfWB5+89YBU5AAjjaD6aXEehydUD/AT4doMjCpNOfGEcTUdc7mNIT/olsAnY9GbnahOFMI7agMOR/voOpKc+hLjh0EGs2kHFpBFfGEetwJHASqTIvwjsmMqdDfsn4xLgZGQkbUWcf0pMxCwmnPhMMT8GWY+9wNbA83sn9CNvEZihtQK5iTqBjVNJL5wM4jscGQ9dgecPTmjhb1GYWG4HRgLP33Fwa3Pg8KZwtTRQRBhHHUhPbka+zTsDz++b5G/ORo76LPftmyzfZfNYHjYXyfFAa+byKLC5YcFNOM4APp35/6fAk5P1MbPOv0sangTp6icDk8KNx0R8yGXwndx7JeADyKfVwBtEGEdJTPrtuVtLwjjazeRZyMuRfzKLfcgdNiloGuPzCygSbBdyDjfwBhHG0RzgceD7wEdyt6+2618xo26iscBxbSciwEnBWBuxwnGtpyFyJwxzgGNxJ0gkmTvHolj0RHsQljmubZpM63usnO8wx7UG15tY1BqTCScGCxG2O279dKK/lcVYOd/hjmv/OhEVaQCA3cD9SPeaTzlB7EIhum+hCMlEIkmUyGIUid1JQ93EZ2b4DMetBuebIASevw+4DCCMo78Hbsrcvj7w/Mcm6dNzEAFm0YuIfdIwFrG7BOkaWQwD2yeuOg1kkPWtlag/N3E8cBmSnUwy8Y1F7C4nTaRMsI1JtIamOB5EibHTUZLq85P4LZexMekRqrEQ3585ru1OvN9hHJ2E0twThbgEPJC5Pw85Tt+HUt9LiGt+K/D8V+qthAXmj7RylpI6RTtRetZzgedXnbGWkr8KJa/ORRJgFDlTQ+A56shKNqf7ApQ8sQzoIFVNSljiK/AamqjdSQKB+fOWZoprQhN5S+D5JYtmfC33vZlIAmUl1iiwoZpVGsZRYiUfjfTJRIJ1I539/Y7XdlcprxllKq1CRmgisvtRosRTgedvrfR+grrCa9bJTwMn5W5dFXj+7fbMD1EDE5SA/4CI4zrgEsq951k8AXw88PyBKnVoBi4CrkFEXgm9SD+621HGYuAq5EPLc/E8zgk8/4kKdWkDzgYuREkU9SLbX5cA9+XubwaOq+REDuPoo8C/5C7vAd7uyuy2qMWlqN/yOl01jAJrXO0P4+hYNJ4nUl1tuxe4ttqY1sv55lD0fkN52GVe7t42NDvuopwoXTgbmBbG0TkubmNxzi8Ap9RR19nAXWEctSQDbWUcj3Lo8vV0YQANagFhHJ0JrMXt86yFrIriEnV7akQv3uW49moFwlsN3ED1iVoJ+8iF1Gzyfxb4G6QK1MJfAXPDOFpTqU31GhwzkemfxQDm6DTPfL5CI2iwaxFegtNQw8oQxtFS4HtUJrxK4ua2MI6WWBkLkYuiEuHlB29r4PmbcvVoCuPoBitnPIQ3RPmALnE8U9F4C+OoCbcv7v/kn7N6Ps74CA+gP5tdY37AR1Gs2UV4ldbTrAL+utJH6uV8rtBLJyl3aKc82QCkl2WxAa3NaEG632xHmReEcfRA4Pn9sF9PfNTx/W7kD/spavhiJI6z1ngTcCYa0OsoWuojwJeRnlhCuloArAaectTtJuDvHNcBXkITpAv1w3uB/5F7Jln8lIjtDkc5r1UoH9IVdnlsy/3/98D/rFDGC1bPbtTeo1B782OXd5/djKRTHl9Ha1QG0HhejrK1s1gTxtGXXcmy9RLfUY5rnQmRkK7ecmEfGvwHEvYbxtFtVun8zFyKOMJ6+/9miuL+FaQfZhXiZ8I4KgG35p49wgb6REe9rqygF36enAVvnMRFeLsR0T+f7dwwjqBIfN2kyReLKeq/icFTCe0U+2sQMYHku2cCNzre3Qtcka8ncG8YR3Mp9s+WTJkXUZRIfcClgeeXZdmEcfQqWrmX9QfPQ8yj0LZ6iW+R41pX5m/XLAaJmvMDz38mezHw/F1hHF2PuFoeHcD6MI7OAM7L3dsOnFvBmt3suNaKBq3Nce/rrgpnJhQAYRydAHzK8egW4KzA87sc9z7guLYzY5HOp8htuqnuV3OpNntIVZ/ZwOcd73UCJweeXwgG2FKHNsc7P86UmSfmIeCCCq6fZIJlia+ZCov5a+p8pmssd9z6Sebvd1R4/e484WWwGXcaVpt98wrHveuquFHOdVzrJHWj5LGqQjn7YS6Kmyhaxt3IGuyq8KorDPl65u/DKPZ9rQVVLv1tL2mobS1FvXwYuNBFeIYFjncgVacup2gl31vF53g8RUY0SIVJVQ/nW4g7srEV9vvd2h3v9eAWAdkyBik2rgX5nY7PXV8XeP667AUTGSuANRRTkAB+gDiDy193l9X9/io+slUUCWkEuCYn9rN1moe4VBaJTzOZzC5CqhWmPNpxbXvg+SVbkurSye4OPH9DlTLnU9S9u4Bum3j5MvuQBb0fYRzNQuN/InAtRZraUYlh1EN8SyjO/AFSJ+Qc3AbJnXkRlkMTbs7bj8RW/t7iMI6eylyfjgjXpRKAFPFnAs/fZ7pI3lqeAdwDnBPG0fWB5290lHGZ49omqmcUL6EoUodILdlk+408flapwCoEG9rvEylO4j7UvmpYQLGftwWe3xfG0SkU+7YZeMj0axBdzEFE3OYov4T0difqIb53Oiq4PeOPm0PRChsCaoWDZuF2fDbhdtwuwD1oLuxE4iYxHK5CxozLWjwBODaMoxuBWzIRiBW4XSr31RCPh1Ps1y2ZusymKJqGqBJRQJIn/84wKbf8oOOdDdTmpu90XEvqcQTFcW+jPl8ryGj7TIVJDY7CXXBxlqx57zI2tlG74QsoKtAl1PhKBkwtlFBM9ORseMd0nlOpnCI0DTlQb8tkCR9JkYMNAOuoAONQrpzH7HfnOcrtoXpy6Arc0mezRZ9cvtR/rRFya8E9uX5hv11BhXqxHjg96+R3oSrnM53IpZBmjQ1XZ3dmZnolnOq4thMRZFuNd0EzawgNwl4U/nuuki4WeP7WMI7eh4jsPNyuoU8gX9uDwF847m+toUq0U/RvQnlS5lLH/U6qr4E5znGtK/D8YXOgu3yYtRb9zKZIfEPAdptE9YTjhu1b/WjybEQ+0rp2o6gldtspirp8wyp1ZkVYzNGlIG9ChJSvVzfypyXXR0m3Q+usd0GNKb6XhnH0CLJiVzoeuyaMoydwi+hae/K5dC8olxSuyVoxicH8lC7LPCnT5awfpXa20RkUJd8AkjytuNvxZZSIkLzXY9/prJXM4UIt4ptLsXE9aNCThIN8mGiU2unXn6EoegC+iWZfvlNKwBMTtX408Pz1YRydjkJleZG1CHHeMW3BZj6zqx23BpBVn6Dd8cyvqxR9Ju5QXCJ9KonWimNrqsXHHLeSjTBb0Ri35+5/N+9xeCOopfPlPw7lSYbZlKYE+RhmGcI4WkXReQziei/g1n1m4RZn44alLD1S4fZ03INaLaB+PW5ddQ/mi6titToJ3dw21+Eep4Tzue61VPhOgr/D7bvdZnriEG4u/+4qZY4ZtYjvCMe1HRl5vpDiDBustOVDGEfLUZaLi+uttYbvozx6gj1/hXHaqhjjskLXs0NocrnuHW9e//w3L8KRFGHop1wEuvr8vznKnI76ykXQA6Q6YjfuifIhI/Z8uasRQbsQAtg4uFSnSyzDqCrqGSeoQnw2iC597ueZv10pPqUwjlZmiSCMo5mWi/Yd3LrU7YHnvwhg+pvLj3Y28jEdbpZaUnZLGEcLwjg6MYyjh8j4tsI4uieMo08m2S259i0BLnZ8Z4tl8Lpm/kzg82EctVv2yBxba/FVxG32UVzcsy9nfLmyg08L4+i8MI5mhXHUFsbRicDLVI7C7CJNq9+Lm1BOAW6wjCOszp9EmUaVOHjWWHuZIkeeCzwVxtFJpotiZTdb3VeGcfQPwGuuSZpHNS4xjeKsK1HOlVysfT5a3LwxjKM9iMCX4A45ATyDLNAsHkGB+bbc9dUooXVzGEd7SS3jdlLDaDOos1ES5TSgN4yjTWjQ/g1lZa/Cbcl/1X6/jJubnYcyN3ajwUgm6CjwABr0WZnn96sRgeePhnG02fHdNpQkug0ZdFkVI7GusxbtHoyIA88fCePoMdyZLJ8GVllfLaR8PHsoRmKy7rFXUPw6n6WyBG2rsSmMoy5EE7OtfksRTY2gvqm6trga8S2nOPj9pIPb5qh8glbkvK2FJyl3BgMQeP6WMI7uAP7B8c4M3GnfCZIO/jBpQHs2dcRyEfE8bH+vQ5t9u3TNDooT84uIgPLZLHlO9x1kROTRTNH1sRNNhrW56/ktdpPvuizUpRQl2D+h+mc9DiXKJ8q+MI6utvq6Vi2+hyJhJkiWF2ytcB+orvO5HJC9md0J2qk/4pDHEPA5lPFSySVwE1BIeaoDwzYxXF7/angAuCwZVMsOvpgabiPD/cjSbaEo0vL6z5OIqGthE3AOCsvlB/+32X/Mt3kN9S0o/2dkHOW5byEGbnHhNYxvFVvNAEa1B1yhlyxbbqfo3BxAYtnldyuhRjwMvDfw/LXVHJGB5w8Hnn8ZckZvxK0rJeX2IRFxHXLIDiF3zmP2zUoumn6UCHoqyhHMd/4O4L+jXVXzZSQLhC5DRFtCkqI/91NWb1vTcD4KP+bbP2r1/Ufgg4Hnb0d9nC2vF0coLvD8ryNi3UVRVxvCiDnw/KtJt0HLlus0XCyD5X0oBa3P9YxhEI39HSiZ9rkKz+1HxQVElpi4gLTTm9EqqU12/2/QuoosnkcdsAKFZ2ah8yx+iwZqQ40IQUWYgXC4lfmnwG9QJ3eiWHNXhffakDO5A6kD/8nq04c88fVwNswIWAy8Dfh3NMgvZR3c5uubQzpAzSgl3dnmUOtKlgJ/Avw/a8srQWYfPrN655AS1CjaH6eSU3o6UksWo77/HeKe+1e4ZSIYCRFi5XfXCMnNQ6J2ntV5FOnQ/UhF2OZaT1IJ494c0izLfBrT7YHnXzWuAhuYcqgnsaAAm+HLXbfeUG0amFIYF/HhdsOMUDv22UAD+zFe4ltOMcWnl8zCkwYaqIXxEp/LDdMfNI48aGAMGC/xBY5rk7qXWwNvPYyZ+MxMd8V8f/TGq9PAVMJ4ON9cymOXCfIr5xtooCrGQ3wdFGO6w9QXhmqggf0YD/EtoJiPt4PJ3TmzgbcgxkN8hcRHtBVErTUDDTRQhjERn2WouoyNamtOG2jAibGknIOCzx+n6GCe1I2jG3hronHqZAMHDeN1MjfQwBtGg/gaOGhoEF8DBw0N4mvgoKFBfA0cNDSIr4GDhrH6+aYUbPFRC1ooM1LtNJ0Gxo6Gny8H24tkNVqC2Y5i1i32049W8j+KVszVs062gQpoEJ/BiO4atCIvmzjRjdbjZq+Nom0+vhCM4dDCBsrRID72n5h5M+64dRfaMSC/QB6USnZL4PnXT17t3rqY8sRnu65/hfIE2awu3EU58ZUQ58tug/E14PJ6d0htQJjS1m4YR4ejTXbmIIJLfqrtgNpESpxDiBgvQttzNDAGTFnisz3+bibdiSu7b0o1L0D2/JDs1hCfCnUWbQN1YsoSHzpi9f1IhA5TvmdJtl9ch9UM2fMzSLlkE7C23l05G5jaxJecLjQNEVxizWa5XrJN7xDloriVtO+S6/vQJjrLJ6Gub0lMSSezndm2HBHMdERIW5FPbxvaxSrZWaobbf81D3G6ZrSzaSvaNSvZozDZQ+8YtB1ZAzUwJYkP7biQENx6tM3rDLTt2SgyHn6BiPFatCB+AJ1BcQQ6EnQY7drZi1b0nY44n+vwmAYcmJKuFnOvjKC98EphHC1Fh09vRxMy4XJ70B7EWxFhfgTtLNqKON48dAzrvVbuTLRn88OVQnG2f94iZGHn1Z5BxHkPp7hUIYthtC+O6xAbsN3qq5yMuQitv3YdP7YRtX155vpmq1ul7Yj77HtdVv6sKnVLMDhVOd8IsDGzkWGye+nLqCM/i/x7L6H1yK8jomhFrpnL0QANUb6Pcb9tgu40OsI4OgZt97sc947w29A2tM9WKsPQCVyAjvyqhK4wjr6Bjpgo2fdXoP2dkw0e8xhGqxPPpPzg6PMRsVf6Xsm+d1/g+begyVOtbgAbpirxNaHBHQIIPL831FH2z5Ge5pj0zbOkXOhLSE+8Ee1pPI/yI+FbEYEWtvu1XT3vo/IRrSAO22ffcEVUEnSS6qSV0I4Oe/k18GXj7k/jJroEewPP3xPGUT5mPUL1/Z6bkepxcxhH2ykeB+HCzqlKfPvQDvUDsH/L3WbSU4QWIrHUgrhiGykBDiAi6UVEsDyMo2HboWsuxUNfEqygnPC2IhE3jdRx/RBFcbsTncyUXG8Cvuf4xna00fgcdAZcwjlPRWemfYxywhuifGPyZlJDqR4vyGY08ZZSvmP/h5B0yGKjPZ+0oRl4ZKoS3xbgIovpXoD7zOAEw2igko5rQ2Ircc0MAoNhHL0I/BJ4oUK2S36Xh91ItJXt2ew44WcbcCspJ25CFnh+v5x1gedfZ2X8nPSMlOnGkbNnGA8hA2n9GzjP7qHA8++wsn9DyqlnUtw9/3tot/9sG/Y0m/K9BHVGL1IU96BZfSLpQXx9iIJXkc7W5N46pMe8ZIV/BHGMTtJjSY8EnrSDUFYjDvMq0q3OsPe+Zt9fjERfcp7DHtIzJtZb2e8JPP8JO3pqrl3fhs6jGAYerBRrtaNClwF/bZdG7afJ3k3aVwlN9vyI/T0PhdheBW6v8E5/5hugMzDORrrSJqRvPkBxJ/nV9pPFGsQNs/g97I/cZLlnEovOHluxFaWGNYVx9GHKz1vZhENtcCB5poVyr4nLKf9Zyg/6GQaOa0J6zB+jzrkWeIdV9gY0yOcDy4ALgSvs/+TAkGvs91IkMk6xvy9GbP5KdBjMhxErnm2dsxY7idqeOcvKLFkd3o50lltJz2J7H8qx6wMuBe4zq+1KRARXoRODlgEfoDhgedxH6jxuIt1rxtV5WYxmnmtGhkNCMJ+vsm3IJuwAnRzara53ofYmE6ESRkgnZhYfC+Po+8gdlD1jY5cdOeFq02KUm3hX5mcVtY9LBbjavvdjyjndXmrroz1AdxOKb85Fs2kQUXIbMCPw/PsRt1uCOvm3qGNagCfQBkGPAUcjIvyQ3ZuDBrPP3vuglX0SKRf9ImlkYRRotTPPhuydXcCd6GiFLsQZXrajC06w8s+0e7dbWcuAx61DXKfx7Efg+VvsvSTC0Wy/k/8rYYRy8ZH8/0Tg+d+o8r0BNHHvJXVo53EeshSznKcXcfVX7WcdbuJrR/2yPHOtC02yPEbNAl7suFcP1wOJ9RMo12MHEZPJ162LtA2bgG8DPU3ItE6stES3aUEnTn8Tid5rkEjzUUf/Z/v4PiRO5wO3IaI9HHVQFxrED9nfd5KeLj4NnXU7gA4SbAbeZodAj9j3O4D/gmbVdHtmn52H0Y069TDU2U+hQXoIcdXT0aSphZusrs2Ux2mrYZo9P0iaWvUqkgpVEXj+7sDzL0WT9TjgZMr3uZmORHiW+NcFnn+cvXN04PlnmTpRyygYQQfbbLZDGLNtm2u+uI1oQtRLcJVQQmL8rMDzE5dUFrfl2nBV4PmlZiR2R9GANiGuNYJm6DxgKPD87jCOksG8h9QKvMA+fKGd1XU/5dxgFHVon+l6MwPPHwrj6FSkmPZYwx/LlHm+3SvZtZvNFXIHWkdRwvSdzBqLVuTkHA7jaAtQqufka6vztUgZTxIFRkm5YCWDbMTaNYwm1rm1vmcJB6eh/h22MvJJDCXHtYV2YmeLlQPllmmCWxDXf9naMQ1JnBfNkb6D9ODuBciF9JLje/XibiSym5GlPVDFeDk6jKNEqia72zYdUhEOs6zWAr9OogoTUGYTcrF8AhFxYmyM2N9diKMn1twI4nozEee/NPD8x+r4zlykDrRXeWw70pWfpfKhiiCCORWF9xLC+Vzg+WvDOPoK6eGDw8C7A8/fHsbRX5E5DrYK1iID76HMtXOQ5Msed3tF4PlfdBUQxtEJ6OTRaugrzGxzhj6NlMZHA89/IIyj2wDs3C6sIX+JDIZEcX8aicnfoRk2CvxHNDN+hPTGYXtvEIncVru+GcVXr0AK65Woo74feP699v251jGXAK+EcfQMclXMQdzx+RqNdcI48lNI/5mB1IYZuK3eRDzNQNy6HWgJ42hR4Pk7kxld4QioDqoTXg+aBD1UJzwQIfTm6pYo/feREl8LcE8YRx9AlvRfAB+leJpoghLSR/P1dFn/rghNgnpceM4IxyxEeFcCXwrj6EngeGAkjKM5Jl5ORXreatRZ1yCWvxt51UeBB1EnTkOGRp81bCXys72G4qSPoAP7TiDV705BxNAcxtG3kVvlvWEcLSY9fO4kRPQ3onDXuIgPIPD8rWEc7bL6LiI9xxdrZ9LxiQvjJatDHzqS9BVkjZ9g7z7p+Ew/MnCyluyoteHnKM7cHcbRDOB/kepNTZl3kt8/Q26sWzJ1+4G15dUwjq5E59Ml78wKPH8PcGUYR/egCb+MdFlo8vNa4PnPWRjwlsz3t6JxTq6BDIhK2IVOt8xa7nlae9lFfKNIpCxEnbsKcbIm4NgwjnYid8oIOplyhj2bGAqPoUFMjIQS0g1uQNbxBuCbiOBGSBM5R+29rciQmIaMiZXI0JiNXDjNiDsljeqgPtdALdyDXB1dyJI/EunBC0h9dCNo4pyIuPezSI/bamW0VSrcTpAsnEtnyQijgecPWNLBrEoLkkxvbAk8f9CI9EbzEGSfaQ08/w77uy2b4GBqSx/wfNYyzz8XeP4G8z22Wr3a0HiuJfUGzLD6NJse34oY1zRgT0ZKtqHT1gvSoKDzmRWUnCZ5G5oliWk/3yrfivST1chabkI6wjzEgeYjDpKY3M8gX18X4ppJrPAuxC2+iAhtIRrAP0Ec5Uj73nKkd7yKXEOLrfw2+/6tgedvzTdurAjj6Dzkcmqzuj6LJtjvUOd3Ig73HuubJmR0vYwc5Meikxdr7tRqlv11Vm4PmqCXor7tRxP514Hnfy6Mo6+iiXA24rKPI0u9F03onwJXB57/rjCObgV+hVK/mrFECUt6uBMxjn1ovNYBnyT1eNxo1vEpiAbWo/P0jrK2/w75ZGchJvN7dGbyO001WomkXzOSSKcA77K23JVXjQqcz47bPD9zaUv+mQz+scL1vRRdHf9sv/MiaZv93kTRgusECONoGFmwSRl7KXr4xw0Lunejzl6G/G2DiMDnAhGaSEvspwP13XFIbTgMTcTD0Nm89eBa4BdJm4xofhJ4/t1hHP0tcheVLNzWhAhqQ+D5l4Zx1I505tNR6OpXQIe5oYat7HMDz99oBshqZJ1OQy6vFxCxtwJ/Fnj++UZwn7EyZ9u3Lg51tG0p8PxrrJ49wBGB519vBNds3Hsa8KXA8x8O4+gSNHG/HXj+GuvfO8M4ejHLAQ+V2O5G6vPbjQkmNs5Ahs4e5Hb6JeIIF6GB7CF1gaxBXONmxMEXIy65yK5vyYvBKlgKfNaiNO2Iy3/X7m1FPrEWlO7/OppwJxgxPWL3/hZJoFF0yPLpSPrMQZwb4CcoaoU912ZiexhxtG6710WqNgwC7w/j6HHE4d8WxtEPrC5NKCw3HXH6LqSaDZMaIdutTf+e+b8ZqXP7U9DG49854Ag8vzSWQ4THgJVI1+tHg3st4l5tiJiOQYR1HHCu/b0DcfG1SPx1IOlwDxJ/9WIIie/ZyGrvAJaYxXw6clW8jqz7lxCxvRJ4/sVIDZqFxOU+NLC/Qbr0aUiarDTn8nuRWoCVUQp1yPQw4k4d9txK0pPk2+xba9CE+oy1MXFINyGDrwd5Kk62d5psQp+F1K+3my64Cvlh9xMeHCLEN4nYgojoRiRaf0AaT56BZuoxqPOW2juv22ToBP4c6bcLEDGMhTtfjfTYyxH3uRDpuk8hwnzQ6ve8GSt9yOH8NMooft6iJQm36betOx5DuuQHrawfk3oCfoF01MuQW+c54If23NHWF6A0roVhHH0LuC2Mo8Tv+C9I3P8KqSdrjTC7EC2dg8T5/0UE+CM0QddYncpwSDmZJxMmzlYgztaGxEYvadLpbDQou5BzdxRxmvlIN30BOV4ng0O/JXGo6HwTDrPql5AeXN2BuF0HEsFJ7DZJCZtn939v70xHnOMYpCPORWJ5+wFsxiGNKSd2wzhqDePoU0gEnY/0qW+gBIhLkb71Q0RoiaGR+PhmotOW1gee/xxS5r+JiK4EvBbG0acPbIsOXUxFzrcIJTY2I11thrmXwNwkYRw9jHIKl2fea0KumJcy1wZJs1zm2++Ph3H0jOlpDVTBVCS+JBvlJWRY3GBKfA/QG3h+j6W1X1lHWU3Af0U64qOIGI9HIrpBfDUwFYmvhMTnGci3l6xvGAJ6wzjai3S835OmGyUJBdk8NZ90x4IW5CtMnM9vND9uSmAqEt8OFO47DRHOKCK2vcjXNcueG0EukCTu3IKIthUR5VDmvSQSArJ6q0WFGjBMSVeLOT4/itZ6HIkIZyPyZbUgd8qxKNIwiGLOAyj9+3i71oYiHDsRQfYhp+29VdZxNJDBlCS+BOaN70DZJotJd6SajazdvYjL7U/jR9wvMTSmI2L9AvD1BtGNDVOa+BKEcfQJFNcFEVaSmLnDfidp8x2kYjhRWbYFnr/sAFX1LYWpqPO5sB759zqAtyHO1464WpLM2Ys4Xy9KGxpBvsLdYRw1NyIbY8f/BwBAzWt25KDwAAAAAElFTkSuQmCC" alt="Logo Ipesaúde">
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn" data-theme="overview"><span class="tdot"></span>Visão Geral</button>
+    <button class="tab-btn" data-theme="reg-prod"><span class="tdot"></span>Regulação · Produtividade</button>
+    <button class="tab-btn" data-theme="reg-des"><span class="tdot"></span>Regulação · Desempenho</button>
+    <button class="tab-btn" data-theme="reg-vol"><span class="tdot"></span>Regulação · Volume Detalhado</button>
+    <button class="tab-btn" data-theme="con-prod"><span class="tdot"></span>Concorrente · Produtividade</button>
+    <button class="tab-btn" data-theme="con-des"><span class="tdot"></span>Concorrente · Desempenho</button>
+    <button class="tab-btn" data-theme="retro-prod"><span class="tdot"></span>Retrospectiva · Produtividade</button>
+    <button class="tab-btn" id="exportPdfBtn" style="margin-left:auto; border-color:rgba(45,217,195,0.35); background:linear-gradient(135deg, rgba(45,217,195,0.14), rgba(91,157,255,0.08));">
+      <span class="tdot" style="background:var(--teal); box-shadow:0 0 8px var(--teal)"></span>Exportar PDF
+    </button>
+  </div>
+
+  <!-- ============ KPI (dynamic per theme) ============ -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- ============================================================ -->
+  <!-- THEME 0 — VISÃO GERAL                                         -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-overview">
+    <div class="section-title"><h2>Panorama por Área</h2><span class="tag">CLIQUE NUM CARD PARA ABRIR A ABA</span></div>
+    <div class="grid-3">
+      <div class="panel" style="animation-delay:.05s; cursor:pointer" onclick="showTheme('reg-prod')" title="Abrir Regulação · Produtividade">
+        <h3>Regulação</h3>
+        <div class="desc">Produtividade, desempenho e volume de solicitações</div>
+        <div class="hl-grid" style="grid-template-columns:1fr; margin-top:12px">
+          <div class="hl-row"><span class="name">Guias periciadas (jun)</span><span class="val" style="color:var(--teal)">11.625</span></div>
+          <div class="hl-row"><span class="name">SLA eletivos dentro do padrão</span><span class="val" style="color:var(--green)">66,2%</span></div>
+          <div class="hl-row"><span class="name">Comparecimento perícia presencial</span><span class="val" style="color:var(--red)">81,2%</span></div>
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:.1s; cursor:pointer" onclick="showTheme('con-prod')" title="Abrir Concorrente · Produtividade">
+        <h3>Concorrente</h3>
+        <div class="desc">Internações, enfermagem e auditoria médica</div>
+        <div class="hl-grid" style="grid-template-columns:1fr; margin-top:12px">
+          <div class="hl-row"><span class="name">Visitas no semestre</span><span class="val" style="color:var(--blue)">7.516</span></div>
+          <div class="hl-row"><span class="name">Dentro do prazo</span><span class="val" style="color:var(--green)">89,2%</span></div>
+          <div class="hl-row"><span class="name">TMP crítico (H. Primavera)</span><span class="val" style="color:var(--red)">32 dias</span></div>
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:.15s; cursor:pointer" onclick="showTheme('retro-prod')" title="Abrir Retrospectiva · Produtividade">
+        <h3>Retrospectiva</h3>
+        <div class="desc">Contas auditadas e recursos por prestador</div>
+        <div class="hl-grid" style="grid-template-columns:1fr; margin-top:12px">
+          <div class="hl-row"><span class="name">Contas auditadas (jun)</span><span class="val" style="color:var(--teal)">9.601</span></div>
+          <div class="hl-row"><span class="name">Recursos apresentados</span><span class="val" style="color:var(--green)">522 (-9,8%)</span></div>
+          <div class="hl-row"><span class="name">Maior retrabalho</span><span class="val" style="color:var(--red)">São Lucas 25,12%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Pontos de Atenção Consolidados</h2><span class="tag">AÇÃO RECOMENDADA · TODAS AS ÁREAS</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="ovAtencaoTable" style="margin-top:8px"></div>
+      <div class="source-tag" style="margin-top:12px">Consolidado a partir dos alertas identificados em cada aba deste relatório.</div>
+    </div>
+
+    <details class="glossary-box">
+      <summary>Glossário de termos técnicos</summary>
+      <div class="glossary-grid">
+        <div><b>SLA</b> — Service Level Agreement (Acordo de Nível de Serviço): prazo ou meta de atendimento estabelecido para um processo.</div>
+        <div><b>TMP</b> — Tempo Médio de Permanência: média de dias que o paciente fica internado num prestador.</div>
+        <div><b>Índice de Retrabalho</b> — percentual de contas que precisaram de recurso/correção após a auditoria inicial.</div>
+        <div><b>IPESCARDIO</b> — projeto de análises cardiológicas conduzido por peritos específicos do Portal Prestador.</div>
+        <div><b>TAVI</b> — Implante Transcateter de Válvula Aórtica: procedimento cardíaco de alta complexidade, monitorado individualmente.</div>
+        <div><b>CRAUT</b> — Central de Regulação de Autorizações: setor responsável pela entrada de solicitações eletivas.</div>
+        <div><b>SADT</b> — Serviço de Apoio Diagnóstico e Terapêutico: exames e procedimentos de apoio ao diagnóstico/tratamento.</div>
+        <div><b>Comparecimento</b> — percentual de perícias agendadas que efetivamente aconteceram (inverso da ausência).</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 1 — REGULAÇÃO PRODUTIVIDADE                             -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-reg-prod">
+    <div class="section-title"><h2>Produtividade Geral SADT</h2><span class="tag">JUNHO 2026 · 19 DIAS ÚTEIS</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <div class="panel-head"><h3>Guias solicitadas, periciadas e pendentes</h3></div>
+        <div class="desc">Total de guias solicitadas = 9.700 (Junho) + 2.684 pendentes de Maio</div>
+        <div class="chart-box" style="height:260px"><canvas id="rpGeral"></canvas></div>
+        <div class="insight">Média de <b>611 guias periciadas por dia útil</b> em junho — acima da média de abril (572) e maio (535), mesmo com 759 guias ainda não periciadas.</div>
+        <div class="source-tag">Dados fornecidos por Vitória Neves de Jesus · Supervisora da Regulação/Perícia Médica</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Reversão de guias SADT no Benner</h3>
+        <div class="desc">Total revertido: 2.124 guias</div>
+        <div class="chart-box" style="height:260px"><canvas id="rpReversao"></canvas></div>
+        <div class="insight warn">A automação transferiu 3.568 guias já periciadas, das quais <b>1.905 precisaram ser revertidas</b>. O setor de perícia reverteu manualmente outras 219.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Produtividade Individual</h2><span class="tag">PERÍCIAS SADT · JUNHO</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <h3>Perícias SADT por colaborador</h3>
+      <div class="desc">Médicos, dentista e enfermeiras — quantidade de perícias no mês</div>
+      <div class="chart-box" style="height:420px"><canvas id="rpPericiasSadt"></canvas></div>
+      <div class="insight">Dr. João Oliveira Deda lidera com <b>2.107 perícias</b> (incluindo 6 listas adicionais referentes a um período de ausência). Dra. Rayanna e Dr. Filipe atuaram na retaguarda, priorizando reversões de cirurgias eletivas.</div>
+    </div>
+    <div class="panel" style="margin-top:18px; animation-delay:.1s">
+      <h3>Média de guias periciadas por hora</h3>
+      <div class="desc">Meta: 20 guias/hora · <span style="color:#3ddc84">▉</span> atingiu · <span style="color:#f5b342">▉</span> próximo · <span style="color:#f2884a">▉</span> distante</div>
+      <div class="chart-box" style="height:340px"><canvas id="rpGuiasHora"></canvas></div>
+      <div class="insight">Marcela (20,8), João (20,7) e Ana Angélica (20,6) atingem a meta de 20 guias/hora. Carlos (19,9) e Waneska (19,4) ficam bem próximos; os demais estão mais distantes do alvo.</div>
+    </div>
+
+    <div class="section-title"><h2>Produtividade Individual · Portal Prestador</h2><span class="tag">AUTORIZAÇÕES DE CIRURGIAS / PROCEDIMENTOS</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Perícias de cirurgias / procedimento por perito</h3>
+        <div class="desc">Eletivos e urgência — Portal Prestador · Junho</div>
+        <div class="chart-box" style="height:420px"><canvas id="rpPortal"></canvas></div>
+        <div class="insight warn">Alexandre Duarte, Roberto Cintra e José Augusto atuam pelo projeto <b>IPESCARDIO</b>, totalizando 105 análises em junho — queda frente às 120 de maio.</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Média de guias por hora — Portal Prestador</h3>
+        <div class="desc">Meta equipe médica: 12 perícias/h (eletivo+urgência) · 6 perícias/h (só eletivo) · Meta enfermagem: não estabelecida</div>
+        <div id="rpPortalTable" style="margin-top:8px"></div>
+        <div class="insight good">Allana Dzieciol (18,75/h), Isadora Cardozo (17,17/h) e Caio Flávio (13,90/h) superam a meta médica, puxando a média geral da equipe.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 2 — REGULAÇÃO DESEMPENHO                                -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-reg-des">
+    <div class="section-title"><h2>Entrada de Eletivos · Central de Autorizações</h2><span class="tag">TOP 10 · JUNHO</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Top 10 especialidades por volume</h3>
+        <div class="desc">610 solicitações em junho · média de 30/dia útil</div>
+        <div class="chart-box" style="height:340px"><canvas id="rdEntrada"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Leitura do mês</h3>
+        <div class="stat-strip" style="grid-template-columns:1fr 1fr; margin-top:6px">
+          <div class="stat-box"><div class="n" style="color:var(--teal)">610</div><div class="l">Solicitações Junho</div></div>
+          <div class="stat-box"><div class="n" style="color:var(--blue)">30</div><div class="l">Média por dia útil</div></div>
+        </div>
+        <div class="insight good"><b>Crescimento em destaque:</b> solicitações do Programa da Dor.</div>
+        <div class="insight warn"><b>Queda em destaque:</b> Ortopedia (105→77) e Oncologia (61→40).</div>
+        <div class="source-tag">Dados fornecidos por Fabiana Passos Hora · Coordenadora do Setor CRAUT</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Participação dos Prestadores</h2><span class="tag">JUNHO 2026 · % DO TOTAL</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <h3>Solicitações por prestador e percentual de participação</h3>
+      <div class="desc">Empilhado por mês (Abr/Mai/Jun) · total e % de participação em Junho ao final da barra · ordenado do maior para o menor</div>
+      <div class="chart-box" style="height:420px"><canvas id="rdPrestadores"></canvas></div>
+      <div class="insight"><b>DECOS</b> assume a liderança em junho com 23% de participação. Os três maiores prestadores concentram <b>60%</b> de todas as 610 solicitações.</div>
+    </div>
+
+    <div class="section-title"><h2>Perícia Presencial</h2><span class="tag">AGENDADAS VS REALIZADAS · JANEIRO A JUNHO 2026</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Evolução do comparecimento (%)</h3>
+        <div class="desc">Percentual de perícias agendadas efetivamente realizadas</div>
+        <div class="chart-box" style="height:260px"><canvas id="rdPericiaAusencia"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Agendadas vs Realizadas</h3>
+        <div class="desc">Total mensal (Drª Camila + Dr Marcos)</div>
+        <div class="chart-box" style="height:260px"><canvas id="rdPericiaAgendaRealiza"></canvas></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:18px; animation-delay:.05s">
+      <h3>Detalhamento por médico</h3>
+      <div class="desc">Perícias agendadas e realizadas, mês a mês</div>
+      <div id="rdPericiaTable" style="margin-top:8px"></div>
+      <div class="insight warn">Comparecimento subiu fortemente de <b>67,2%</b> em abril para <b>90,3%</b> em maio, mas caiu para <b>81,2%</b> em junho (ausência foi de 18,8%). No semestre, fevereiro e março também tiveram comparecimento abaixo de 86% — vale investigar se há um padrão recorrente nesses meses.</div>
+      <div class="source-tag" style="margin-top:10px">Dados fornecidos por planilha "Quantitativo de perícia presencial" · Google Drive</div>
+    </div>
+
+    <div class="section-title"><h2>SLA de Emissão de Guias</h2><span class="tag">PRAZO DE ATENDIMENTO</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div class="panel-head"><h3>Eletivos — composição por prazo</h3><span class="badge up">66,2% dentro do padrão (≥45 dias)</span></div>
+      <div class="desc">629 (Abr) · 713 (Mai) · 708 (Jun) guias emitidas</div>
+      <div class="grid-3" style="margin-top:10px">
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">ABRIL</div><div class="chart-box" style="height:300px"><canvas id="rdSlaEletivoAbril"></canvas></div></div>
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">MAIO</div><div class="chart-box" style="height:300px"><canvas id="rdSlaEletivoMaio"></canvas></div></div>
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">JUNHO</div><div class="chart-box" style="height:300px"><canvas id="rdSlaEletivoJunho"></canvas></div></div>
+      </div>
+      <div class="insight good">O padrão para eletivos é emissão a partir de 45 dias. Cerca de 2 em cada 3 guias seguem essa regra — patamar estável nos três meses (as demais fatias são Planilha de Pedidos, Onco/Quinzenais e Cotas). O ponto de atenção real são as guias emitidas <b>abaixo de 45 dias</b>: subiu de <b>1,4%</b> em abril para <b>3,4%</b> em maio, e caiu para praticamente <b>0%</b> em junho — sinal positivo de melhor aderência ao padrão no fechamento do trimestre.</div>
+    </div>
+    <div class="panel" style="margin-top:18px; animation-delay:.1s">
+      <div class="panel-head"><h3>Urgência — composição por prazo</h3><span class="badge down">77,3% dentro de 3 dias</span></div>
+      <div class="desc">1198 (Abr) · 1114 (Mai) · 1188 (Jun) guias emitidas</div>
+      <div class="grid-3" style="margin-top:10px">
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">ABRIL</div><div class="chart-box" style="height:270px"><canvas id="rdSlaUrgenciaAbril"></canvas></div></div>
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">MAIO</div><div class="chart-box" style="height:270px"><canvas id="rdSlaUrgenciaMaio"></canvas></div></div>
+        <div><div style="text-align:center; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:4px">JUNHO</div><div class="chart-box" style="height:270px"><canvas id="rdSlaUrgenciaJunho"></canvas></div></div>
+      </div>
+      <div class="insight">O atendimento dentro de 3 dias caiu de 83% (maio) para 77,3% (junho).</div>
+    </div>
+
+    <div class="section-title"><h2>Monitoramento TAVI</h2><span class="tag">IMPLANTE TRANSCATETER DE VÁLVULA AÓRTICA · 2026</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Taxa de aprovação</h3>
+        <div class="chart-box" style="height:230px"><canvas id="rdTaviRate"></canvas></div>
+        <div class="insight">1 protocolo autorizado em <b>junho/2026</b>.</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Resumo do período</h3>
+        <div class="stat-strip" style="grid-template-columns:1fr 1fr; margin-top:6px">
+          <div class="stat-box"><div class="n" style="color:var(--teal)">7</div><div class="l">Protocolos no Período</div></div>
+          <div class="stat-box"><div class="n" style="color:var(--green)">5</div><div class="l">Concluídos</div></div>
+          <div class="stat-box"><div class="n" style="color:var(--blue)">2</div><div class="l">Caráter Eletivo</div></div>
+          <div class="stat-box"><div class="n" style="color:var(--purple)">5</div><div class="l">Caráter Urgência</div></div>
+        </div>
+        <div class="insight">Dr. Otávio Augusto Oliveira de Aragão é o médico solicitante mais recorrente (4 dos 7 protocolos).</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:18px; animation-delay:.05s">
+      <h3>Pacote de TAVI 2026 — protocolos detalhados</h3>
+      <div class="desc">Cadastro, envio, prestador, status e responsáveis por protocolo</div>
+      <div id="rdTaviTable" style="margin-top:8px"></div>
+    </div>
+
+    <div class="section-title"><h2>Regulação de Curativos</h2><span class="tag">TRATAMENTO E PREVENÇÃO</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Valores por categoria</h3>
+        <div class="desc">Valor Solicitado, Valor Liberado e Custo Evitado — barras explícitas por categoria</div>
+        <div class="chart-box" style="height:280px"><canvas id="rdCurativos"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Custo evitado total</h3>
+        <div class="stat-strip" style="grid-template-columns:1fr; margin-top:10px">
+          <div class="stat-box" style="text-align:center; padding:26px;"><div class="n" style="color:var(--green); font-size:32px">R$ 156.847,22</div><div class="l">Custo evitado total no trimestre</div></div>
+        </div>
+        <div class="insight good">Tratamento gerou <b>R$ 134.474,35</b> em custo evitado; Prevenção, <b>R$ 22.372,87</b>.</div>
+        <div class="source-tag">Dados fornecidos por Tayná Santos Pimentel · Coordenadora de Auditoria Retrospectiva</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 2b — REGULAÇÃO VOLUME DETALHADO (TOP 20 + TOMOGRAFIA)   -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-reg-vol">
+    <div class="section-title"><h2>Volume de Solicitações — Detalhado</h2><span class="tag">TOP 20 · ABR / MAI / JUN</span></div>
+    <div class="grid-2b">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Top 20 Solicitações Eletivas</h3>
+        <div class="desc">Empilhado por mês — total ao final da barra · passe o mouse sobre a barra para ver o código do procedimento</div>
+        <div class="chart-box" style="height:560px"><canvas id="rvEletivos"></canvas></div>
+        <div class="insight">Histerectomias e biópsias endometriais lideram o volume. <b>Herniorrafia umbilical</b> saltou para o top 20 puxada pelo crescimento de 160% no trimestre.</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Top 20 Solicitações de Urgência</h3>
+        <div class="desc">Empilhado por mês — total ao final da barra · passe o mouse sobre a barra para ver o código do procedimento</div>
+        <div class="chart-box" style="height:560px"><canvas id="rvUrgencia"></canvas></div>
+        <div class="insight warn"><b>Internação por regulação</b> e <b>tomografias sem contraste</b> concentram o maior volume. Acessos centrais em urgência cresceram 155% no período.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Destaques do Trimestre</h2><span class="tag">VARIAÇÃO % · ABR → JUN</span></div>
+    <div class="grid-2b">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Maiores variações · Eletivos</h3>
+        <div class="hl-grid" style="margin-top:6px">
+          <div class="hl-card grow"><div class="hl-title">▲ Crescimento</div>
+            <div class="hl-row"><span class="name">Herniorrafia Umbilical</span><span class="val">+160%</span></div>
+            <div class="hl-row"><span class="name">Colecistectomia s/ Colangiografia</span><span class="val">+81%</span></div></div>
+          <div class="hl-card drop"><div class="hl-title">▼ Queda</div>
+            <div class="hl-row"><span class="name">Turbinectomia Unilateral (pacote)</span><span class="val">-50%</span></div>
+            <div class="hl-row"><span class="name">Turbinectomia/Turbinoplastia Unilateral</span><span class="val">-47%</span></div></div>
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Maiores variações · Urgência</h3>
+        <div class="hl-grid" style="margin-top:6px">
+          <div class="hl-card grow"><div class="hl-title">▲ Crescimento</div>
+            <div class="hl-row"><span class="name">Colocação de Cateter Venoso Central</span><span class="val">+1900%</span></div>
+            <div class="hl-row"><span class="name">Acesso Central em Urgência</span><span class="val">+155%</span></div></div>
+          <div class="hl-card drop"><div class="hl-title">▼ Queda</div>
+            <div class="hl-row"><span class="name">Desbridamento Cirúrgico de Feridas</span><span class="val">-26%</span></div>
+            <div class="hl-row"><span class="name">Tomografia de Crânio</span><span class="val">-7%</span></div></div>
+        </div>
+        <div class="insight warn">O salto de <b>+1900%</b> em cateteres venosos centrais (2 → 40) merece checagem pontual de protocolo antes de virar tendência.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Tomografia por Prestador</h2><span class="tag">PROTOCOLOS DE URGÊNCIA AUTORIZADOS</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <div class="panel-head"><h3>Protocolos de tomografia solicitados</h3><span class="badge up">Jun +33% vs Mai</span></div>
+        <div class="desc">Volume total: 190 (Mai) → 253 (Jun) protocolos</div>
+        <div class="chart-box" style="height:320px"><canvas id="rvTomo"></canvas></div>
+        <div class="insight"><b>Hospital do Coração</b> reaparece com 9 solicitações em junho. <b>Fundação</b> segue como maior solicitante isolado (83 em junho, 233 no trimestre).</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Variação % por prestador</h3>
+        <div class="desc">Abril → Maio → Junho → Trimestre</div>
+        <div id="rvTomoTable" style="margin-top:8px"></div>
+        <div class="insight warn"><b>São Lucas</b> disparou +225% de maio para junho, o maior salto mensal do grupo.</div>
+      </div>
+    </div>
+    <div class="source-tag" style="margin-top:14px">Dados fornecidos por Vitória Neves de Jesus · Supervisora da Regulação/Perícia Médica</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 3 — CONCORRENTE PRODUTIVIDADE                           -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-con-prod">
+    <div class="section-title"><h2>Internações Superiores a 3 Dias</h2><span class="tag">JUNHO 2026</span></div>
+    <div class="stat-strip">
+      <div class="stat-box"><div class="n" style="color:var(--teal)">741</div><div class="l">Total de Internados</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--blue)">475</div><div class="l">Pacientes Elegíveis (&gt;3 dias)</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--purple)">1.230</div><div class="l">Visitas Realizadas</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--amber)">3</div><div class="l">Visitas / Paciente Elegível</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Desempenho por prestador</h3>
+        <div class="desc">Internados vs. elegíveis (&gt;3 dias) vs. visitas realizadas</div>
+        <div class="chart-box" style="height:360px"><canvas id="cpDesempenho"></canvas></div>
+        <div class="insight">* Hospital São Lucas não incluído na análise devido à inconsistência dos dados.</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Tabela completa</h3>
+        <div id="cpTable" style="margin-top:8px"></div>
+        <div class="insight good">Em média, <b>3 acompanhamentos presenciais</b> por paciente elegível — Hospital Cirurgia lidera com 2,93 visitas/paciente.</div>
+        <div class="source-tag">Dados fornecidos por Andreza Lima Silva · Coordenadora de Auditoria Concorrente</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Auditoria de Enfermagem</h2><span class="tag">2º TRIMESTRE 2026 (ABR–JUN)</span></div>
+    <div class="stat-strip">
+      <div class="stat-box"><div class="n" style="color:var(--teal)">5</div><div class="l">Auditoras</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--blue)">2.559</div><div class="l">Visitas Realizadas</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--purple)">511</div><div class="l">Média Geral / Mês</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--amber)">-3</div><div class="l">Variação Equipe (Abr→Jun)</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Produtividade por auditora</h3>
+        <div class="chart-box" style="height:340px"><canvas id="cpEnfermagem"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Tabela detalhada</h3>
+        <div id="cpEnfermagemTable" style="margin-top:8px"></div>
+        <div class="insight">Paula (+34) e Patrícia (+9) puxam o crescimento; Edivanice recua -42 no trimestre.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Auditoria Médica</h2><span class="tag">2º TRIMESTRE 2026 (ABR–JUN)</span></div>
+    <div class="stat-strip">
+      <div class="stat-box"><div class="n" style="color:var(--teal)">4</div><div class="l">Auditores</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--blue)">1.045</div><div class="l">Visitas Realizadas</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--purple)">261</div><div class="l">Média Geral / Mês</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--green)">+79</div><div class="l">Variação Equipe (Abr→Jun)</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Produtividade por auditor</h3>
+        <div class="chart-box" style="height:300px"><canvas id="cpMedica"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Tabela detalhada</h3>
+        <div id="cpMedicaTable" style="margin-top:8px"></div>
+        <div class="insight warn">André recua -29 e PJ Médicas Primavera -14 no trimestre, mesmo com o total da equipe crescendo (+79) puxado por Samuel e Ítalo.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 4 — CONCORRENTE DESEMPENHO                              -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-con-des">
+    <div class="section-title"><h2>Panorama de Visitas do Semestre</h2><span class="tag">JANEIRO – JUNHO 2026</span></div>
+    <div class="stat-strip">
+      <div class="stat-box"><div class="n" style="color:var(--teal)">7.516</div><div class="l">Visitas no Semestre</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--blue)">1.253</div><div class="l">Média Mensal de Visitas</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--green)">89,2%</div><div class="l">Dentro do Prazo</div></div>
+      <div class="stat-box"><div class="n" style="color:var(--red)">10,8%</div><div class="l">Em Atraso</div></div>
+    </div>
+    <div class="panel" style="animation-delay:.05s">
+      <h3>Evolução das visitas realizadas</h3>
+      <div class="chart-box" style="height:300px"><canvas id="cdEvolucao"></canvas></div>
+    </div>
+
+    <div class="section-title"><h2>Panorama de Atraso de Visitas</h2><span class="tag">TENDÊNCIA E SLA</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Evolução do índice de atraso</h3>
+        <div class="chart-box" style="height:300px"><canvas id="cdAtrasoLine"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Quantidade de atrasos por mês</h3>
+        <div class="chart-box" style="height:300px"><canvas id="cdAtrasoBar"></canvas></div>
+      </div>
+    </div>
+    <div class="insight warn" style="margin-top:16px"><b>Atenção:</b> a atuação da auditoria médica não seguiu o SLA acordado entre março e maio. Prestadores com maior índice de atrasos — 1º Trimestre: H. Primavera, H. Renascença e H. Santa Isabel; 2º Trimestre: H. Cirurgia, H. Santa Isabel e H. São Lucas (UTI).</div>
+
+    <div class="section-title"><h2>Tempo Médio de Permanência (TMP)</h2><span class="tag">ENFERMARIA E UTI · DIAS</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>TMP Enfermaria · Junho</h3>
+        <div class="desc">Meta interna: 3–5 dias · <b style="color:var(--text)">São Marcelo e Recomeçar: até 50 dias</b> (perfil de longa permanência)</div>
+        <div class="chart-box" style="height:280px"><canvas id="cdTmpEnf"></canvas></div>
+        <div id="cdTmpEnfTable" style="margin-top:12px"></div>
+        <div class="insight" style="margin-top:10px">São Marcelo (42 dias) e Recomeçar (45 dias) estão <b>dentro</b> da meta diferenciada de até 50 dias. O ponto real de atenção é <b>Hospital Primavera</b>, que subiu de 21 para 32 dias frente à meta geral de 3–5 dias.</div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>TMP UTI · Junho</h3>
+        <div class="desc">Meta interna: 5–10 dias</div>
+        <div class="chart-box" style="height:280px"><canvas id="cdTmpUti"></canvas></div>
+        <div id="cdTmpUtiTable" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="source-tag" style="margin-top:14px">Dados fornecidos por Andreza Lima Silva · Coordenadora de Auditoria Concorrente</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- THEME 5 — RETROSPECTIVA PRODUTIVIDADE                         -->
+  <!-- ============================================================ -->
+  <section class="theme-section" id="section-retro-prod">
+    <div class="section-title"><h2>Comparativo Geral</h2><span class="tag">ABR / MAI / JUN 2026</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="rrGeralTable"></div>
+    </div>
+
+    <div class="section-title"><h2>Contas por Prestador</h2><span class="tag">COMPARATIVO ÚLTIMOS 3 MESES</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <h3>Quantidade de contas apresentadas</h3>
+      <div class="desc">25 prestadores · ordenado do maior para o menor volume em Junho</div>
+      <div id="rrPrestadoresTable" style="margin-top:8px"></div>
+      <div class="insight"><b>Hospital Renascença</b> segue líder isolado (3.283 em junho), mas em queda de -16% no trimestre. <b>Núcleo de Oncologia (NOS)</b> e <b>Ipes</b> têm os maiores saltos percentuais.</div>
+    </div>
+
+    <div class="section-title"><h2>Top 3 Variação Percentual</h2><span class="tag">MAIO → JUNHO</span></div>
+    <div class="grid-2b">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Prestadores que mais cresceram</h3>
+        <div class="chart-box" style="height:260px"><canvas id="rrTopGrow"></canvas></div>
+        <div class="hl-grid" style="grid-template-columns:1fr; margin-top:10px">
+          <div class="hl-card grow">
+            <div class="hl-row"><span class="name">Oncohematos</span><span class="val">+480,56%</span></div>
+            <div class="hl-row"><span class="name">Núcleo de Oncologia (NOS)</span><span class="val">+298,46%</span></div>
+            <div class="hl-row"><span class="name">Hospital Primavera</span><span class="val">+88,41%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Prestadores que mais diminuíram</h3>
+        <div class="chart-box" style="height:260px"><canvas id="rrTopDrop"></canvas></div>
+        <div class="hl-grid" style="grid-template-columns:1fr; margin-top:10px">
+          <div class="hl-card drop">
+            <div class="hl-row"><span class="name">Avosos</span><span class="val">-77,50%</span></div>
+            <div class="hl-row"><span class="name">Constat</span><span class="val">-38,25%</span></div>
+            <div class="hl-row"><span class="name">Hospital Renascença</span><span class="val">-5,36%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Hospital Primavera</h2><span class="tag">POR TIPO DE ATENDIMENTO · MAIO VS JUNHO</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="rrPrimaveraTable" style="margin-top:8px"></div>
+      <div class="insight warn">SADT salta de 528 para <b>1.289 contas</b> — impulsionado pelo crescimento geral do prestador (+88,41% no total).</div>
+    </div>
+
+    <div class="section-title"><h2>Contas por Tipo de Atendimento</h2><span class="tag">JUNHO · TOTAL 9.601</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="rrTipoTable"></div>
+    </div>
+
+    <div class="section-title"><h2>Contas por Enfermeiro Auditor</h2><span class="tag">13 AUDITORES</span></div>
+    <div class="grid-2">
+      <div class="panel" style="animation-delay:.05s">
+        <h3>Total no período</h3>
+        <div class="chart-box" style="height:360px"><canvas id="rrAuditorTotal"></canvas></div>
+      </div>
+      <div class="panel" style="animation-delay:.1s">
+        <h3>Evolução mensal</h3>
+        <div class="chart-box" style="height:360px"><canvas id="rrAuditorMensal"></canvas></div>
+        <div class="insight warn">Genisete apresenta pico atípico em maio (2.270) — vale confirmar se houve redistribuição pontual de carteira.</div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Recursos por Prestador</h2><span class="tag">ÍNDICE DE RETRABALHO</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="rrRecursosTable"></div>
+      <div class="insight warn">Hospital São Lucas (25,12%), Hospital Cirurgia (18,70%) e Hospital do Coração (16,76%) têm os maiores índices de retrabalho — destacados em vermelho.</div>
+    </div>
+
+    <div class="section-title"><h2>Produtividade Médica Individual</h2><span class="tag">CONTAS AUDITADAS POR MÉDICO</span></div>
+    <div class="panel" style="animation-delay:.05s">
+      <div id="rrMedicoTable" style="margin-top:8px"></div>
+      <div class="insight">Contas/Hora = Total de contas no trimestre ÷ (carga horária semanal informada × 13 semanas, período exato de abr–jun/2026). Carga horária: Lucas e Felipe 20h/sem · Maria do Carmo e Vera 16h/sem · Davi, Marco Antônio e Camylla 15h/sem. <b>Perícia Presencial</b> foi removida da lista de prestadores de Camylla e Marco Antônio por não ser um prestador — os totais de ambos foram recalculados só com os prestadores restantes.</div>
+      <div class="source-tag" style="margin-top:12px">Dados fornecidos por Tayná Santos Pimentel · Coordenadora de Auditoria Retrospectiva</div>
+    </div>
+  </section>
+
+  <footer>Consolidado de Produtividade e Desempenho · Auditoria e Regulação · Ipesaúde Abril–Junho 2026.</footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function initDashboard() {
+
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#9797a6';
+Chart.defaults.plugins.datalabels.display = false; // opt-in per chart
+
+const COLORS = {teal:'#2dd9c3', blue:'#5b9dff', amber:'#f5b342', red:'#f2495c', green:'#3ddc84', purple:'#a78bfa', pink:'#f28fa3', orange:'#f2884a', grid:'rgba(255,255,255,0.05)',
+  m1:'#4f8fe0', m2:'#e0c02f', m3:'#8d6fc9'}; // paleta discreta p/ séries mensais — Abril Azul (autismo) · Maio Amarelo (trânsito) · Junho em roxo (sem relação com vermelho de alerta)
+function fmt(n){ return typeof n === 'number' ? n.toLocaleString('pt-BR') : n; }
+function fmtMoneyShort(v){
+  const n = Number(v) || 0;
+  return 'R$ ' + (n/1000).toLocaleString('pt-BR',{minimumFractionDigits:1, maximumFractionDigits:1}) + ' mil';
+}
+function tooltipBase(){ return {backgroundColor:'#1c1c28', titleColor:'#f2f2f7', bodyColor:'#c8c8d4', borderColor:'rgba(255,255,255,0.12)', borderWidth:1, padding:12, cornerRadius:10, titleFont:{weight:'700', size:12}, bodyFont:{size:11.5}, displayColors:true, boxPadding:4}; }
+function dLabel(opts={}){ return Object.assign({display:true, color:'#fff', font:{weight:'700', size:opts.size||9.5}, backgroundColor:'rgba(10,10,15,0.55)', borderRadius:4, padding:{top:2,bottom:2,left:5,right:4}, formatter:v=>fmt(v)}, opts); }
+function legendTop(){ return {position:'top', align:'end', labels:{boxWidth:9, boxHeight:9, usePointStyle:true, pointStyle:'circle', font:{size:10.5}}}; }
+
+// custom plugin: draw stack totals at end of stacked bars
+const stackTotalPlugin = {
+  id:'stackTotal',
+  afterDatasetsDraw(chart){
+    try{
+      const opt = chart.options.plugins && chart.options.plugins.stackTotal;
+      if(!opt || !opt.show) return;
+      const {ctx} = chart;
+      const datasets = chart.data.datasets;
+      const lastMeta = chart.getDatasetMeta(datasets.length-1);
+      const fmtFn = typeof opt.formatter === 'function' ? opt.formatter : fmt;
+      const prefix = opt.totalLabel ? opt.totalLabel+': ' : '';
+      ctx.save();
+      chart.data.labels.forEach((label,i)=>{
+        let total = 0; datasets.forEach(ds=> total += (Number(ds.data[i]) || 0));
+        const bar = lastMeta.data[i]; if(!bar) return;
+        const mainText = prefix + String(fmtFn(total));
+        const suffix = Array.isArray(opt.suffixByIndex) && opt.suffixByIndex[i] != null ? opt.suffixByIndex[i] : null;
+        if(chart.options.indexAxis === 'y'){
+          ctx.textAlign='left'; ctx.textBaseline='middle';
+          ctx.font = '700 11px Inter, sans-serif'; ctx.fillStyle = '#f2f2f7';
+          ctx.fillText(mainText, bar.x+8, bar.y);
+          if(suffix){
+            const mainW = ctx.measureText(mainText).width;
+            ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#8f8f9e';
+            ctx.fillText(suffix, bar.x+8+mainW+6, bar.y);
+          }
+        } else {
+          ctx.textAlign='center'; ctx.textBaseline='bottom';
+          ctx.font = '700 11px Inter, sans-serif'; ctx.fillStyle = '#f2f2f7';
+          const text = mainText + (suffix ? ' '+suffix : '');
+          ctx.fillText(text, bar.x, bar.y-6);
+        }
+      });
+      ctx.restore();
+    }catch(e){ /* fail silently, never break chart rendering */ }
+  }
+};
+Chart.register(stackTotalPlugin);
+
+// custom plugin: external callout labels with leader line for doughnuts (PowerPoint-style)
+const externalLabelsPlugin = {
+  id:'externalLabels',
+  afterDraw(chart){
+    try{
+    const opt = chart.options.plugins && chart.options.plugins.externalLabels;
+    if(!opt || !opt.show) return;
+    const {ctx, chartArea} = chart;
+    const meta = chart.getDatasetMeta(0);
+    const data = chart.data.datasets[0].data;
+    const labels = chart.data.labels;
+    const total = data.reduce((a,b)=>(Number(a)||0)+(Number(b)||0), 0);
+    const cx = (chartArea.left+chartArea.right)/2;
+    const cy = (chartArea.top+chartArea.bottom)/2;
+    const canvasW = chart.width;
+    const margin = 4;
+    ctx.save();
+    meta.data.forEach((arc,i)=>{
+      const val = Number(data[i]) || 0;
+      if(!val) return;
+      const pct = total ? Math.round(val/total*100) : 0;
+      const angle = (arc.startAngle+arc.endAngle)/2;
+      const outerR = arc.outerRadius;
+      const sx = cx+Math.cos(angle)*outerR, sy = cy+Math.sin(angle)*outerR;
+      const midR = outerR+10;
+      const mx = cx+Math.cos(angle)*midR, my = cy+Math.sin(angle)*midR;
+      const dir = Math.cos(angle)>=0 ? 1 : -1;
+      let lx = mx + dir*16;
+      const nameLabel = String(labels[i]);
+
+      // measure text to make sure nothing gets clipped by canvas edges
+      ctx.font = "700 9px 'Inter', sans-serif";
+      const nameW = ctx.measureText(nameLabel).width;
+      ctx.font = "600 8.5px 'Inter', sans-serif";
+      const pctW = ctx.measureText(pct+'%').width;
+      const textW = Math.max(nameW, pctW);
+      if(dir===1){
+        const maxX = canvasW - margin;
+        if(lx + 3 + textW > maxX) lx = maxX - 3 - textW;
+      } else {
+        const minX = margin;
+        if(lx - 3 - textW < minX) lx = minX + 3 + textW;
+      }
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(sx,sy); ctx.lineTo(mx,my); ctx.lineTo(lx,my);
+      ctx.stroke();
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = dir===1 ? 'left' : 'right';
+      ctx.fillStyle = '#f2f2f7';
+      ctx.font = "700 9px 'Inter', sans-serif";
+      ctx.fillText(nameLabel, lx+dir*3, my-6);
+      ctx.fillStyle = '#8f8f9e';
+      ctx.font = "600 8.5px 'Inter', sans-serif";
+      ctx.fillText(pct+'%', lx+dir*3, my+6);
+    });
+    ctx.restore();
+    }catch(e){ /* fail silently, never break chart rendering */ }
+  }
+};
+Chart.register(externalLabelsPlugin);
+
+function hBar(id, labels, data, color, opts={}){
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{labels, datasets:[{data, backgroundColor: opts.colors||color, borderRadius:5, barPercentage:0.7}]},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:tooltipBase(), datalabels:dLabel({size:opts.dsize||10})},
+      scales:{x:{grid:{color:COLORS.grid}, ticks:{font:{size:11}}}, y:{grid:{display:false}, ticks:{font:{size:opts.lfont||10.5}}}}}
+  });
+}
+function groupedBar(id, labels, datasets, opts={}){
+  const horizontal = !!opts.horizontal;
+  const valFmt = opts.money ? fmtMoneyShort : fmt;
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{labels, datasets: datasets.map(d=>({label:d.label, data:d.data, backgroundColor:d.color, borderRadius:4}))},
+    options:{indexAxis: horizontal?'y':'x', responsive:true, maintainAspectRatio:false,
+      plugins:{legend: opts.legend===false?{display:false}:legendTop(),
+        tooltip:{...tooltipBase(), callbacks:{label:c=>` ${c.dataset.label}: ${valFmt(Number(horizontal?c.parsed.x:c.parsed.y)||0)}`}},
+        datalabels:dLabel({size:opts.dsize||9, align: horizontal?'end':'end', anchor:'end', formatter:v=>valFmt(Number(v)||0)})},
+      scales: horizontal ?
+        {x:{grid:{color:COLORS.grid}, ticks:{font:{size:11}, callback:v=>opts.money?fmtMoneyShort(v):String(v)}}, y:{grid:{display:false}, ticks:{font:{size:opts.lfont||10.5}}}} :
+        {x:{grid:{display:false}, ticks:{font:{size:opts.lfont||10.5}}}, y:{grid:{color:COLORS.grid}, ticks:{font:{size:11}, callback:v=>opts.money?fmtMoneyShort(v):String(v)}}}}
+  });
+}
+function stackedBar(id, labels, datasets, opts={}){
+  const valFmt = opts.money ? fmtMoneyShort : fmt;
+  const totals = labels.map((_,i)=> datasets.reduce((sum,ds)=> sum + (Number(ds.data[i])||0), 0));
+  const maxTotal = Math.max(...totals, 0);
+  const needsRoom = opts.totalLabel || opts.suffixByIndex;
+  // opts.codes: mapa opcional {nome do procedimento: código}. Quando informado, o código aparece
+  // apenas no tooltip (hover sobre a barra), sem poluir o rótulo do eixo Y.
+  const codesMap = opts.codes || null;
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{labels, datasets: datasets.map(d=>({label:d.label, data:d.data, backgroundColor:d.color, borderRadius:3, stack:'s'}))},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:legendTop(), tooltip:{...tooltipBase(), callbacks:{
+        title: items=>{ const lbl = items[0]?.label || ''; const cod = codesMap && codesMap[lbl]; return cod ? `${cod} — ${lbl}` : lbl; },
+        label:c=>` ${c.dataset.label}: ${valFmt(Number(c.parsed.x)||0)}`
+      }}, stackTotal:{show:true, formatter:valFmt, totalLabel:opts.totalLabel, suffixByIndex:opts.suffixByIndex}},
+      scales:{x:{stacked:true, grid:{color:COLORS.grid}, suggestedMax: needsRoom ? maxTotal*1.4 : undefined, ticks:{font:{size:11}, callback:v=>opts.money?fmtMoneyShort(v):String(v)}}, y:{stacked:true, grid:{display:false}, ticks:{font:{size:opts.lfont||11}}}}}
+  });
+}
+function stackedPct(id, labels, datasets){
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{labels, datasets: datasets.map(d=>({label:d.label, data:d.data, backgroundColor:d.color, stack:'s'}))},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle',font:{size:10.5}}},
+        tooltip:{...tooltipBase(), callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.x}%`}},
+        datalabels:dLabel({size:10, formatter:v=> v>=8?v+'%':''})},
+      scales:{x:{stacked:true, max:100, grid:{color:COLORS.grid}, ticks:{callback:v=>v+'%', font:{size:11}}}, y:{stacked:true, grid:{display:false}, ticks:{font:{size:12}}}}}
+  });
+}
+function doughnut(id, labels, data, colors, opts={}){
+  return new Chart(document.getElementById(id), {
+    type:'doughnut',
+    data:{labels, datasets:[{data, backgroundColor:colors, borderColor:'#14141c', borderWidth:3, hoverOffset:8}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:opts.cutout||'62%',
+      layout: opts.externalLabels ? {padding:{left:opts.padX||50, right:opts.padX||50, top:opts.padY||14, bottom:opts.padY||14}} : {},
+      plugins:{
+        legend: opts.externalLabels ? {display:false} : {position:opts.legendPos||'right', labels:{boxWidth:9, boxHeight:9, usePointStyle:true, pointStyle:'circle', font:{size:opts.legendSize||10.5}, padding:10}},
+        tooltip:{...tooltipBase(), callbacks:{label:c=> opts.suffix ? ` ${c.label}: ${c.parsed}${opts.suffix}` : ` ${c.label}: ${fmt(c.parsed)}`}},
+        datalabels: opts.externalLabels ? dLabel({size:opts.dsize||10.5, formatter:v=> v ? fmt(v) : ''}) :
+          (opts.showPct ? dLabel({size:opts.dsize||10.5, formatter:(v,ctx)=>{
+            const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct = total ? Math.round(v/total*100) : 0;
+            return pct>=5 ? pct+'%' : '';
+          }}) : {display:false}),
+        externalLabels:{show: !!opts.externalLabels}
+      }}
+  });
+}
+function lineChart(id, labels, datasets, opts={}){
+  return new Chart(document.getElementById(id), {
+    type:'line',
+    data:{labels, datasets: datasets.map(d=>({label:d.label, data:d.data, borderColor:d.color, backgroundColor:d.color, tension:.35, pointRadius:4, pointBackgroundColor:d.color, borderWidth:2.5}))},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:datasets.length>1, ...legendTop()}, tooltip:tooltipBase(), datalabels:dLabel({size:10, align:'top', anchor:'end', backgroundColor:'rgba(10,10,15,0.6)', formatter:v=>opts.suffix?v+opts.suffix:fmt(v)})},
+      scales:{x:{grid:{display:false}, ticks:{font:{size:10.5}}}, y:{grid:{color:COLORS.grid}, ticks:{font:{size:11}, callback:v=>opts.suffix?v+opts.suffix:v}, ...(opts.max?{max:opts.max}:{})}}}
+  });
+}
+function extractSortValue(html){
+  const text = String(html).replace(/<[^>]*>/g, '').trim();
+  const cleaned = text.replace(/[^\d.,\-]/g, '');
+  if(cleaned && /\d/.test(cleaned)){
+    let normalized = cleaned;
+    if(normalized.includes(',')){ normalized = normalized.replace(/\./g,'').replace(',', '.'); }
+    const num = parseFloat(normalized);
+    if(!isNaN(num)) return num;
+  }
+  return text.toLowerCase();
+}
+function table(containerId, headers, rows){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  // Linhas marcadas com total:true (ex.: "Total Geral", "Total Equipe") ficam sempre fixas no final,
+  // e nunca entram na ordenação por coluna.
+  const data = rows.filter(r=>!r.total).slice();
+  const totalRows = rows.filter(r=>r.total).slice();
+  const state = {col:null, dir:1};
+  function render(){
+    const theadHtml = `<tr>${headers.map((h,i)=>
+      `<th data-col="${i}" class="sortable-th">${h}<span class="sort-ind">${state.col===i ? (state.dir===1?' ▲':' ▼') : ''}</span></th>`
+    ).join('')}</tr>`;
+    const bodyRows = [...data, ...totalRows];
+    const tbodyHtml = bodyRows.map(r=>{
+      const cls = [r.alert?'row-alert':'', r.total?'row-total':''].filter(Boolean).join(' ');
+      return `<tr${cls?` class="${cls}"`:''}>${(r.cells||r).map(c=>`<td>${c}</td>`).join('')}</tr>`;
+    }).join('');
+    container.innerHTML = `<table><thead>${theadHtml}</thead><tbody>${tbodyHtml}</tbody></table>`;
+    container.querySelectorAll('th.sortable-th').forEach(th=>{
+      th.addEventListener('click', ()=>{
+        const col = parseInt(th.dataset.col, 10);
+        state.dir = (state.col === col) ? state.dir*-1 : 1;
+        state.col = col;
+        data.sort((a,b)=>{
+          const av = extractSortValue((a.cells||a)[col]);
+          const bv = extractSortValue((b.cells||b)[col]);
+          if(typeof av === 'number' && typeof bv === 'number') return (av-bv)*state.dir;
+          return String(av).localeCompare(String(bv), 'pt-BR') * state.dir;
+        });
+        render();
+      });
+    });
+  }
+  render();
+}
+function vcolor(str){ const s=String(str); return s.trim().startsWith('+') || s.trim().startsWith('↑') ? 'var(--green)' : (s.trim().startsWith('-') || s.trim().startsWith('↓') ? 'var(--red)' : 'var(--text-dim)'); }
+function vspan(str){ return `<span style="color:${vcolor(str)}; font-weight:700">${str}</span>`; }
+// Lógica invertida: usada em métricas onde AUMENTAR é negativo e CAIR é positivo (ex: Tempo Médio de Permanência)
+function vcolorInv(str){ const s=String(str); return s.trim().startsWith('+') || s.trim().startsWith('↑') ? 'var(--red)' : (s.trim().startsWith('-') || s.trim().startsWith('↓') ? 'var(--green)' : 'var(--text-dim)'); }
+function vspanInv(str){ return `<span style="color:${vcolorInv(str)}; font-weight:700">${str}</span>`; }
+
+function toast(msg){ const t=document.getElementById('toast'); t.innerHTML=msg; t.classList.add('show'); clearTimeout(window.__tt); window.__tt=setTimeout(()=>t.classList.remove('show'), 2600); }
+
+/* =========================================================================
+   KPI SETS PER THEME
+   ========================================================================= */
+const KPIS = {
+ 'overview':[
+  {label:'Guias Periciadas · Jun', value:'11.625', delta:'611/dia útil · Regulação', cls:'up', color:'teal', note:'Produtividade Geral SADT', target:'reg-prod'},
+  {label:'Contas Auditadas · Jun', value:'9.601', delta:'+9,7% vs Maio', cls:'up', color:'green', note:'Retrospectiva', target:'retro-prod'},
+  {label:'Visitas Concorrente · Sem.', value:'7.516', delta:'89,2% dentro do prazo', cls:'up', color:'blue', note:'Janeiro–Junho/2026', target:'con-des'},
+  {label:'Comparecimento Perícia Presencial', value:'81,2%', delta:'↓ vs 90,3% em Maio', cls:'down', color:'red', note:'Regulação · Desempenho', target:'reg-des'},
+  {label:'Maior Retrabalho', value:'25,12%', delta:'Hospital São Lucas', cls:'down', color:'amber', note:'Retrospectiva', target:'retro-prod'},
+ ],
+ 'reg-prod':[
+  {label:'Guias Periciadas · Jun', value:'11.625', delta:'Média de 611/dia útil', cls:'up', color:'teal', note:'19 dias úteis no mês'},
+  {label:'Guias Não Periciadas', value:'759', delta:'Saldo em aberto', cls:'down', color:'red', note:'Requer priorização'},
+  {label:'Top Perito SADT', value:'2.107', delta:'João Oliveira Deda', cls:'up', color:'green', note:'Inclui 6 listas adicionais'},
+  {label:'IPESCARDIO · Análises', value:'105', delta:'-12,5% vs Maio (120)', cls:'down', color:'pink', note:'Alexandre, Roberto e José Augusto'},
+  {label:'Auditores Acima da Meta', value:'3', delta:'Allana, Isadora, Caio Flávio', cls:'up', color:'teal', note:'Meta médica: 12 perícias/h'},
+ ],
+ 'reg-des':[
+  {label:'Solicitações Eletivas · Jun', value:'610', delta:'-7,4% vs Maio (659)', cls:'down', color:'teal', note:'Central de Autorizações'},
+  {label:'Guias Eletivas dentro do padrão', value:'66,2%', delta:'469 de 708 guias ≥45 dias', cls:'up', color:'green', note:'Padrão do fluxo é emissão a partir de 45 dias'},
+  {label:'Guias Urgência dentro de 3d', value:'77,3%', delta:'-5,7 p.p. vs Maio (83%)', cls:'down', color:'red', note:'918 de 1.188 guias'},
+  {label:'Comparecimento Perícia Presencial', value:'81,2%', delta:'↓ vs 90,3% em Maio', cls:'down', color:'red', note:'Junho · Dr. Camila e Dr. Marcos'},
+  {label:'Custo Evitado · Curativos', value:'R$ 156,8 mil', delta:'Tratamento + Prevenção', cls:'up', color:'green', note:'Trimestre consolidado'},
+ ],
+ 'reg-vol':[
+  {label:'Top Eletivo do Trimestre', value:'168', delta:'Histerectomia c/ Anexectomia Uni.', cls:'neutral', color:'teal', note:'Soma Abr+Mai+Jun'},
+  {label:'Maior Crescimento · Eletivos', value:'+160%', delta:'Herniorrafia Umbilical', cls:'up', color:'green', note:'10 → 26 no trimestre'},
+  {label:'Maior Queda · Eletivos', value:'-50%', delta:'Turbinectomia Unilateral (Pacote)', cls:'down', color:'red', note:'20 → 10 no trimestre'},
+  {label:'Maior Crescimento · Urgência', value:'+1900%', delta:'Cateter Venoso Central', cls:'warn', color:'amber', note:'2 → 40 no trimestre'},
+  {label:'Tomografia · Jun', value:'253', delta:'+33% vs Maio (190)', cls:'up', color:'teal', note:'Fundação lidera com 83'},
+ ],
+ 'con-prod':[
+  {label:'Total de Internados · Jun', value:'741', delta:'475 elegíveis (>3 dias)', cls:'neutral', color:'teal', note:'Auditoria concorrente'},
+  {label:'Visitas Realizadas · Jun', value:'1.230', delta:'3 visitas/paciente elegível', cls:'up', color:'blue', note:'Média geral do mês'},
+  {label:'Melhor Cobertura', value:'2,93', delta:'Hospital Cirurgia', cls:'up', color:'green', note:'Visitas por paciente elegível'},
+  {label:'Menor Cobertura', value:'1,74', delta:'São Marcelo', cls:'down', color:'red', note:'Visitas por paciente elegível'},
+  {label:'Visitas Médica · Tri', value:'1.045', delta:'+79 vs Abril', cls:'up', color:'teal', note:'4 auditores · méd. 261/auditor no tri'},
+ ],
+ 'con-des':[
+  {label:'Visitas no Semestre', value:'7.516', delta:'Média de 1.253/mês', cls:'neutral', color:'teal', note:'Janeiro a Junho/2026'},
+  {label:'Dentro do Prazo', value:'89,2%', delta:'Visitas realizadas no SLA', cls:'up', color:'green', note:'Semestre consolidado'},
+  {label:'Em Atraso', value:'10,8%', delta:'121 atrasos em junho', cls:'warn', color:'amber', note:'Pico de 237 em abril'},
+  {label:'TMP Enfermaria Crítico', value:'32 dias', delta:'Hospital Primavera', cls:'down', color:'red', note:'Meta: 3–5 dias (São Marcelo/Recomeçar: até 50 dias)'},
+  {label:'TMP UTI Crítico', value:'36 dias', delta:'Hospital Primavera', cls:'down', color:'red', note:'Meta interna: 5–10 dias'},
+ ],
+ 'retro-prod':[
+  {label:'Contas Auditadas · Jun', value:'9.601', delta:'+9,7% vs Maio (8.755)', cls:'up', color:'teal', note:'13 enfermeiros auditores'},
+  {label:'Recursos Apresentados · Jun', value:'522', delta:'-9,8% vs Maio (579)', cls:'up', color:'green', note:'Menos retrabalho no período'},
+  {label:'Índice de Recursos (%)', value:'5,44%', delta:'↓ vs 6,6% em Maio', cls:'up', color:'green', note:'Melhora na qualidade de faturamento'},
+  {label:'Maior Retrabalho', value:'25,12%', delta:'Hospital São Lucas', cls:'down', color:'red', note:'Índice de recursos/contas'},
+  {label:'Maior Crescimento', value:'+480,6%', delta:'Oncohematos', cls:'up', color:'purple', note:'Maio → Junho'},
+ ],
+};
+
+function animateKpiValue(el, text){
+  const str = String(text);
+  const match = str.match(/-?[\d.,]+/);
+  if(!match){ el.textContent = str; return; }
+  const numStr = match[0];
+  const normalized = numStr.replace(/\./g, '').replace(',', '.');
+  const target = parseFloat(normalized);
+  if(isNaN(target)){ el.textContent = str; return; }
+  const prefix = str.slice(0, match.index);
+  const suffix = str.slice(match.index + numStr.length);
+  const decimals = numStr.includes(',') ? (numStr.split(',')[1]||'').length : 0;
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){ el.textContent = str; return; }
+  const duration = 900;
+  const t0 = performance.now();
+  function frame(now){
+    const p = Math.min((now-t0)/duration, 1);
+    const eased = 1 - Math.pow(1-p, 3);
+    const current = target * eased;
+    el.textContent = prefix + current.toLocaleString('pt-BR', {minimumFractionDigits:decimals, maximumFractionDigits:decimals}) + suffix;
+    if(p < 1) requestAnimationFrame(frame);
+    else el.textContent = str;
+  }
+  requestAnimationFrame(frame);
+}
+function renderKpis(theme){
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = '';
+  KPIS[theme].forEach((k,i)=>{
+    const el = document.createElement('div');
+    el.className = `kpi c-${k.color}`;
+    el.style.animationDelay = (i*0.04)+'s';
+    const arrow = k.cls==='up' ? '▲' : k.cls==='down' ? '▼' : k.cls==='warn' ? '●' : '—';
+    el.innerHTML = `<div class="kpi-label">${k.label}</div><div class="kpi-value"></div>
+      <div class="kpi-delta ${k.cls}">${arrow} ${k.delta}</div><div class="kpi-note">${k.note}</div>`;
+    if(k.cls === 'down'){ el.classList.add('kpi-pulse'); }
+    if(k.target){
+      el.style.cursor = 'pointer';
+      el.title = 'Ver detalhes nesta aba';
+      el.setAttribute('role','button');
+      el.addEventListener('click', ()=> showTheme(k.target));
+    }
+    grid.appendChild(el);
+    animateKpiValue(el.querySelector('.kpi-value'), k.value);
+  });
+}
+
+/* =========================================================================
+   THEME INIT FUNCTIONS
+   ========================================================================= */
+const initFns = {};
+
+initFns['overview'] = function(){
+  table('ovAtencaoTable', ['Área','Indicador','Prestador/Responsável','Valor','Ação recomendada'], [
+    {cells:['Regulação · Desempenho','Comparecimento em perícia presencial','Dr. Camila / Dr. Marcos','<b style="color:var(--red)">81,2% em junho</b> (vs 90,3% em maio)','Investigar causa do aumento de faltas'], alert:true},
+    {cells:['Regulação · Volume Detalhado','Cateter venoso central (urgência)','Central de Autorizações','<b style="color:var(--amber)">+1900% no trimestre</b> (2 → 40)','Checar protocolo antes de virar tendência']},
+    {cells:['Concorrente · Desempenho','SLA de auditoria médica não seguido','Março a Maio/2026','<b style="color:var(--red)">Índice de atraso chegou a 20%</b>','Reforçar equipe / rever cronograma nesses meses'], alert:true},
+    {cells:['Concorrente · Desempenho','TMP Enfermaria acima da meta','Hospital Primavera','<b style="color:var(--amber)">32 dias</b> (meta 3–5; subiu de 21 em abril)','Auditoria pontual da causa de permanência prolongada']},
+    {cells:['Concorrente · Desempenho','TMP UTI acima da meta','Hospital Primavera','<b style="color:var(--amber)">36 dias</b> (meta 5–10)','Acompanhamento mais próximo do prestador']},
+    {cells:['Retrospectiva','Maior índice de retrabalho','Hospital São Lucas','<b style="color:var(--red)">25,12%</b> dos recursos','Auditoria de causa-raiz nas contas apresentadas'], alert:true},
+    {cells:['Retrospectiva','Pico atípico de produtividade','Genisete (auditora)','2.270 contas em maio','Confirmar se houve redistribuição de carteira']},
+  ]);
+};
+
+initFns['reg-prod'] = function(){
+  hBar('rpGeral', ['Guias Solicitadas','Guias Periciadas','Guias Não Periciadas'], [12384,11625,759],
+    [COLORS.blue, COLORS.green, COLORS.amber], {dsize:12, lfont:11.5});
+
+  const reversao = [['Automação',1905],['Isabela',87],['Vitória',51],['Tamires',35],['Rodrigo',34],['Filipe',9],['Augusta',3]];
+  hBar('rpReversao', reversao.map(r=>r[0]), reversao.map(r=>r[1]), COLORS.blue, {dsize:10});
+
+  const sadt = [['João Oliveira Deda',2107],['Ana Angélica Dantas',1476],['Waneska de Souza Barboza',1458],
+    ['Marcela Fernandes M. Amaral',1350],['Lycia Gardênia dos Santos',1309],['Gabriel Couto Senra',1269],
+    ['André Luiz Viegas M. de Araújo',1144],['Fernando Couto Senra',846],['Carlos Augusto M. Santos Filho',557],
+    ['Augusta Maria Dantas Guimarães',108],['Rodrigo Ribeiro de Almeida',62],['Vitória Neves de Jesus',41],
+    ['Filipe Matheus Barros de Araujo Freire',40],['Rayanna Souza Santos',2]];
+  hBar('rpPericiasSadt', sadt.map(r=>r[0]), sadt.map(r=>r[1]), COLORS.blue, {dsize:9.5, lfont:9.5});
+
+  const guiasHoraLabels = ['Marcela F. M. Amaral · 6,5h/dia','João Oliveira Deda · 5h/dia','Ana Angélica Dantas · 6,5h/dia',
+    'Carlos Augusto M.S. Filho · 2h/dia','Waneska de Souza Barboza · 5h/dia','Gabriel Couto Senra · 4h/dia',
+    'André Luiz V. M. Araújo · 4h/dia','Lycia Gardênia dos Santos · 6h/dia','Fernando Couto Senra · 4h/dia'];
+  const guiasHoraData = [20.8,20.7,20.6,19.9,19.4,16.7,14.8,14.5,11.1];
+  const guiasHoraColors = guiasHoraData.map(v=> v>=20 ? COLORS.green : v>=18 ? COLORS.amber : COLORS.orange);
+  hBar('rpGuiasHora', guiasHoraLabels, guiasHoraData, COLORS.blue, {colors:guiasHoraColors, dsize:11, lfont:11});
+
+  const portal = [['Allana Dzieciol',1650],['Isadora Cardozo Roza',1511],['Caio Flávio de Barros',1223],
+    ['Françuarla S. Jesus',820],['Rayanna Souza Santos',504],['Mara Caruzo Alves',360],['Carlos Augusto',267],
+    ['Augusta Maria Dantas',189],['Filipe Matheus Barros',146],['Alexandre Duarte',65],['Rodrigo Ribeiro de',40],
+    ['José Augusto Soares',27],['Vitória Neves de Jesus',25],['Lycia Gardenia dos',19],['Roberto Cintra de',13]];
+  hBar('rpPortal', portal.map(r=>r[0]), portal.map(r=>r[1]), COLORS.teal, {dsize:9.5, lfont:9.5});
+
+  table('rpPortalTable', ['Perito','Categoria','Horas/dia','Dias Atuação','Média/hora'], [
+    {cells:['Allana Dzieciol Martins','Med','4','22','<b style="color:var(--green)">18,75</b>']},
+    {cells:['Isadora Cardozo Roza Barreto','Med','4','22','<b style="color:var(--green)">17,17</b>']},
+    {cells:['Caio Flávio de Barros Martins','Med','4','22','<b style="color:var(--green)">13,90</b>']},
+    {cells:['Françuarla S. Jesus','Enf','6','19','7,19']},
+    {cells:['Rayanna Souza Santos','Med','4','22','<b style="color:var(--red)">5,73*</b>']},
+    {cells:['Mara Caruzo Alves','Enf','4','19','4,74']},
+    {cells:['Carlos Augusto Moura Santos Filho','Med','4','17','3,93']},
+    {cells:['Augusta Maria Dantas Guimaraes','Enf','6','19','1,66']},
+  ]);
+};
+
+initFns['reg-des'] = function(){
+  hBar('rdEntrada', ['Ortopedia','Programa da Dor','Oncológicos','Herniorrafia','VHD/VHC','Histerectomia','Cateterismo','Urologia','Colecistectomia','Colonoscopia'],
+    [77,49,40,37,36,32,32,27,26,21], COLORS.blue, {dsize:10});
+
+  const prestData = [
+    ['DECOS',189,138,137],
+    ['Hospital Primavera',116,149,119],
+    ['Clínica Renascença',113,118,106],
+    ['Angiocor',54,62,69],
+    ['São Lucas',73,87,62],
+    ['Hospital do Coração',63,9,49],
+    ['Fundação Beneficência',45,63,36],
+    ['Santa Helena',44,26,24],
+    ['Hospital Santa Izabel',4,15,8]];
+  stackedBar('rdPrestadores', prestData.map(r=>r[0]),
+    [{label:'Abril', data:prestData.map(r=>r[1]), color:COLORS.m1},
+     {label:'Maio', data:prestData.map(r=>r[2]), color:COLORS.m2},
+     {label:'Junho', data:prestData.map(r=>r[3]), color:COLORS.m3}],
+    {lfont:11, suffixByIndex:['23% jun','20% jun','17% jun','11% jun','10% jun','8% jun','6% jun','4% jun','1% jun']});
+
+  const periciaMeses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho'];
+  const periciaDetalhe = [
+    ['Janeiro',35,33,27,24],
+    ['Fevereiro',13,8,25,24],
+    ['Março',36,29,31,28],
+    ['Abril',26,11,41,34],
+    ['Maio',40,35,32,30],
+    ['Junho',39,30,25,22],
+  ];
+  const periciaAusenciaPct = periciaDetalhe.map(([mes,cm,cr,mm,mr])=>{
+    const totM = cm+mm, totR = cr+mr;
+    return +((totM-totR)/totM*100).toFixed(1);
+  });
+  const periciaComparecimentoPct = periciaDetalhe.map(([mes,cm,cr,mm,mr])=>{
+    const totM = cm+mm, totR = cr+mr;
+    return +(totR/totM*100).toFixed(1);
+  });
+  lineChart('rdPericiaAusencia', periciaMeses, [{label:'Comparecimento', data:periciaComparecimentoPct, color:COLORS.green}], {suffix:'%', max:100});
+
+  groupedBar('rdPericiaAgendaRealiza', periciaMeses,
+    [{label:'Agendadas', data:periciaDetalhe.map(([mes,cm,cr,mm,mr])=>cm+mm), color:COLORS.amber},
+     {label:'Realizadas', data:periciaDetalhe.map(([mes,cm,cr,mm,mr])=>cr+mr), color:COLORS.blue}], {dsize:10});
+
+  table('rdPericiaTable', ['Mês','Camila (Agend./Real.)','Marcos (Agend./Real.)','Total Agend.','Total Real.','Comparecimento','Ausência'],
+    periciaDetalhe.map(([mes,cm,cr,mm,mr],i)=>{
+      const totM = cm+mm, totR = cr+mr;
+      const compPct = periciaComparecimentoPct[i];
+      const ausPct = periciaAusenciaPct[i];
+      const compColor = compPct>=87 ? 'var(--green)' : (compPct>=80 ? 'var(--amber)' : 'var(--red)');
+      const compText = compPct.toString().replace('.',',') + '%';
+      const ausText = ausPct.toString().replace('.',',') + '%';
+      return {cells:[
+        `<b style="color:var(--text)">${mes}</b>`,
+        `${cm} / ${cr}`,
+        `${mm} / ${mr}`,
+        `<b>${totM}</b>`,
+        `<b>${totR}</b>`,
+        `<b style="color:${compColor}">${compText}</b>`,
+        `<span style="color:var(--text-faint)">${ausText}</span>`
+      ], alert: compPct < 80};
+    }));
+
+  const eletivoPrazoColors = [COLORS.red, COLORS.green, COLORS.amber, COLORS.blue, COLORS.purple];
+  doughnut('rdSlaEletivoAbril', ['< 45 dias','≥ 45 dias','Plan. Pedidos','Onco/Quinz.','Cotas'],
+    [9,423,47,150,0], eletivoPrazoColors, {cutout:'55%', externalLabels:true, padX:48, padY:16});
+  doughnut('rdSlaEletivoMaio', ['< 45 dias','≥ 45 dias','Plan. Pedidos','Onco/Quinz.','Cotas'],
+    [24,463,59,155,12], eletivoPrazoColors, {cutout:'55%', externalLabels:true, padX:48, padY:16});
+  doughnut('rdSlaEletivoJunho', ['< 45 dias','≥ 45 dias','Plan. Pedidos','Onco/Quinz.','Cotas'],
+    [0,470,64,159,15], eletivoPrazoColors, {cutout:'55%', externalLabels:true, padX:48, padY:16});
+
+  const urgenciaPrazoColors = [COLORS.green, COLORS.amber];
+  doughnut('rdSlaUrgenciaAbril', ['< 3 dias','≥ 3 dias'], [944,254], urgenciaPrazoColors, {cutout:'60%', externalLabels:true, padX:55, padY:14});
+  doughnut('rdSlaUrgenciaMaio', ['< 3 dias','≥ 3 dias'], [925,189], urgenciaPrazoColors, {cutout:'60%', externalLabels:true, padX:55, padY:14});
+  doughnut('rdSlaUrgenciaJunho', ['< 3 dias','≥ 3 dias'], [918,270], urgenciaPrazoColors, {cutout:'60%', externalLabels:true, padX:55, padY:14});
+
+  doughnut('rdTaviRate', ['Concluída','Perícia Negada'], [5,2], [COLORS.green, COLORS.red], {legendPos:'bottom', cutout:'70%'});
+
+  table('rdTaviTable', ['Protocolo','Cadastro','Envio','Prestador','Status','Solicitante','Auditor','Caráter'], [
+    {cells:['2026208182','21/01/2026','22/01/2026','Fundação Cirurgia','<span class="pill ok">Concluída</span>','Otávio A. O. Aragão','Allana Dzieciol','Urgência']},
+    {cells:['2026208567','22/01/2026','—','Fundação Cirurgia','<span class="pill bad">Negada</span>','Otávio A. O. Aragão','Caio Flávio','Urgência'], alert:true},
+    {cells:['2026213651','25/02/2026','—','Fundação Cirurgia','<span class="pill bad">Negada</span>','Otávio A. O. Aragão','Caio Flávio','Urgência'], alert:true},
+    {cells:['2026217395','23/03/2026','31/03/2026','Angiocor','<span class="pill ok">Concluída</span>','André Bastos Paixão','Isadora','Eletivo']},
+    {cells:['2026217935','26/03/2026','24/04/2026','Angiocor','<span class="pill ok">Concluída</span>','André Bastos Paixão','Roberto Cintra','Eletivo']},
+    {cells:['2026225197','15/05/2026','13/05/2026','Hospital do Coração','<span class="pill ok">Concluída</span>','Otávio A. O. Aragão','Alexandre Duarte','Urgência']},
+    {cells:['2026230390','12/06/2026','22/06/2026','Hospital do Coração','<span class="pill ok">Concluída</span>','Lawrence A. Araujo','José Augusto','Urgência']},
+  ]);
+
+  groupedBar('rdCurativos', ['Tratamento','Prevenção'],
+    [{label:'Valor Solicitado', data:[249998.74,136411.84], color:COLORS.blue},
+     {label:'Valor Liberado', data:[115524.39,114038.97], color:COLORS.amber},
+     {label:'Custo Evitado', data:[134474.35,22372.87], color:COLORS.green}],
+    {horizontal:true, money:true, dsize:9, lfont:12});
+};
+
+initFns['reg-vol'] = function(){
+  // Mapa código→procedimento extraído do PDF original (Indicadores_Auditoria_JUNHO_2026, pág. 10-11).
+  // O código aparece só no hover da barra, sem poluir o rótulo do eixo Y (pedido do usuário).
+  const procedureCodes = {
+    // Top 20 Eletivos
+    'Histerectomia c/ anexectomia uni.': '3.13.03.129',
+    'Histerectomia c/ anexectomia': '0.92.31.0036',
+    'VHD - Cirurgia Eletiva': '0.92.31.0034',
+    'Vídeo Histeroscopia Diagnóstica': '4.02.01.155',
+    'Biópsia do Endométrio': '3.13.03.030',
+    'Cateterismo Cardíaco (Adulto)': '0.92.13.0003',
+    'Cateterismo Cardíaco (Pacote)': '0.92.71.0158',
+    'Radioscopia p/ Acompanhamento': '4.08.11.026',
+    'Cateterismo Cardíaco E/D': '3.09.11.079',
+    'Acromioplastia': '3.07.35.033',
+    'Reparo Artroscópico Manguito': '3.07.35.068',
+    'Colecistectomia s/ Colangiografia': '0.92.04.0019',
+    'Coluna: Infiltração Foraminal': '4.08.13.363',
+    'Artroplastia Total de Joelho': '3.07.26.034',
+    'Herniorrafia Umbilical': '3.10.09.166',
+    'Turbinectomia Unilateral (Pacote)': '0.92.03.0006',
+    'Trat. Cirúrgico Varizes Bilateral': '0.92.80.1013',
+    'Turbinectomia/Turbinoplastia Unilateral': '3.05.01.458',
+    'Varizes - Trat. Cirúrgico Bilateral': '3.09.07.136',
+    'Implante Cateter Venoso Central': '3.09.13.012',
+    // Top 20 Urgência
+    'Internação Hospitalar (Regulação)': '0.91.08.0029',
+    'TC sem Contraste': '0.92.20.0010',
+    'TC Crânio/Sela': '4.10.01.010',
+    'TC Tórax': '4.10.01.079',
+    'TC Abdome Total': '4.10.01.095',
+    'Taxa Refeição Acompanhante': '6.00.33.533',
+    'TC com Contraste': '0.92.20.0012',
+    'Internação Hospitalar': '0.91.08.0030',
+    'Diário de Acompanhamento': '0.91.01.0551',
+    'Parto Cesáreo (Enfermaria)': '0.92.08.0014',
+    'Cesariana Feto Único/Múltiplo': '3.13.09.054',
+    'Endoscopia Digestiva Alta': '4.02.01.120',
+    'Acesso Central em Urgência': '0.92.04.0005',
+    'Endoscopia Digestiva Alta (II)': '0.92.17.3047',
+    'Visitas Subsequentes (Acompanh.)': '1.01.02.019',
+    'Desbridamento Cirúrgico de Feridas': '3.07.30.031',
+    'Colocação de Cateter Venoso Central': '4.08.13.231',
+    'Angiografia Cateterismo Não Seletivo': '4.08.12.030',
+    'Angiografia Cateterismo Seletivo': '4.08.12.049',
+  };
+  const eletivosData20 = [
+    ['Histerectomia c/ anexectomia uni.',60,44,64],['Histerectomia c/ anexectomia',56,45,62],
+    ['VHD - Cirurgia Eletiva',31,27,25],['Vídeo Histeroscopia Diagnóstica',30,21,25],
+    ['Biópsia do Endométrio',30,21,24],['Cateterismo Cardíaco (Adulto)',19,23,33],
+    ['Cateterismo Cardíaco (Pacote)',20,23,31],['Radioscopia p/ Acompanhamento',26,23,23],
+    ['Cateterismo Cardíaco E/D',20,21,30],['Acromioplastia',19,19,24],['Reparo Artroscópico Manguito',19,18,24],
+    ['Colecistectomia s/ Colangiografia',11,28,20],['Coluna: Infiltração Foraminal',23,21,13],
+    ['Artroplastia Total de Joelho',20,20,13],['Herniorrafia Umbilical',10,17,26],
+    ['Turbinectomia Unilateral (Pacote)',20,19,10],['Trat. Cirúrgico Varizes Bilateral',13,13,22],
+    ['Turbinectomia/Turbinoplastia Unilateral',19,19,10],['Varizes - Trat. Cirúrgico Bilateral',12,13,21],
+    ['Implante Cateter Venoso Central',13,14,15]];
+  stackedBar('rvEletivos', eletivosData20.map(d=>d[0]),
+    [{label:'Abril', data:eletivosData20.map(d=>d[1]), color:COLORS.m1},
+     {label:'Maio', data:eletivosData20.map(d=>d[2]), color:COLORS.m2},
+     {label:'Junho', data:eletivosData20.map(d=>d[3]), color:COLORS.m3}], {lfont:9.5, codes:procedureCodes});
+
+  const urgenciaData20 = [
+    ['Internação Hospitalar (Regulação)',325,313,307],['TC sem Contraste',186,153,182],
+    ['TC Crânio/Sela',103,70,96],['Implante Cateter Venoso Central',104,70,92],['TC Tórax',71,83,91],
+    ['TC Abdome Total',70,53,75],['Taxa Refeição Acompanhante',60,65,67],['TC com Contraste',57,45,79],
+    ['Internação Hospitalar',52,61,51],['Diário de Acompanhamento',53,53,56],['Parto Cesáreo (Enfermaria)',35,44,46],
+    ['Cesariana Feto Único/Múltiplo',36,43,46],['Endoscopia Digestiva Alta',33,39,42],['Acesso Central em Urgência',20,22,51],
+    ['Endoscopia Digestiva Alta (II)',26,29,35],['Visitas Subsequentes (Acompanh.)',25,14,30],
+    ['Desbridamento Cirúrgico de Feridas',23,26,17],['Colocação de Cateter Venoso Central',2,15,40],
+    ['Angiografia Cateterismo Não Seletivo',19,13,22],['Angiografia Cateterismo Seletivo',20,10,22]];
+  stackedBar('rvUrgencia', urgenciaData20.map(d=>d[0]),
+    [{label:'Abril', data:urgenciaData20.map(d=>d[1]), color:COLORS.m1},
+     {label:'Maio', data:urgenciaData20.map(d=>d[2]), color:COLORS.m2},
+     {label:'Junho', data:urgenciaData20.map(d=>d[3]), color:COLORS.m3}], {lfont:9, codes:procedureCodes});
+
+  groupedBar('rvTomo', ['Renascença','Fundação','Santa Izabel','Primavera','São Lucas','Hospital do Coração'],
+    [{label:'Abril', data:[49,86,29,54,15,0], color:COLORS.m1},
+     {label:'Maio', data:[57,64,33,32,4,0], color:COLORS.m2},
+     {label:'Junho', data:[74,83,46,28,13,9], color:COLORS.m3}], {dsize:9});
+
+  table('rvTomoTable', ['Prestador','Abr→Mai','Mai→Jun','Trimestre'], [
+    {cells:['<b style="color:var(--text)">Renascença</b>', vspan('+16,3%'), vspan('+29,8%'), vspan('+51%')]},
+    {cells:['<b style="color:var(--text)">Fundação</b>', vspan('-25,6%'), vspan('+29,7%'), vspan('-3,5%')]},
+    {cells:['<b style="color:var(--text)">Santa Izabel</b>', vspan('+13,8%'), vspan('+39,4%'), vspan('+58,6%')]},
+    {cells:['<b style="color:var(--text)">Primavera</b>', vspan('-40,7%'), vspan('-12,5%'), vspan('-48,1%')]},
+    {cells:['<b style="color:var(--text)">São Lucas</b>', vspan('-73,3%'), vspan('+225%'), vspan('-13,3%')]},
+  ]);
+};
+
+initFns['con-prod'] = function(){
+  const cp = [['H. Renascença',163,132,259,'1,96'],['Recomeçar',10,3,15,'2'],['H. Cirurgia',175,115,337,'2,93'],
+    ['H. Coração',85,49,126,'2,57'],['H. Santa Isabel',116,81,212,'2,62'],['H. Primavera',108,76,215,'2,83'],['São Marcelo',36,19,33,'1,74']];
+  groupedBar('cpDesempenho', cp.map(r=>r[0]),
+    [{label:'Internados', data:cp.map(r=>r[1]), color:COLORS.blue}, {label:'>3 dias', data:cp.map(r=>r[2]), color:COLORS.amber}, {label:'Visitas', data:cp.map(r=>r[3]), color:COLORS.teal}], {dsize:9});
+  table('cpTable', ['Prestador','Internados','>3 dias','Visitas','Visitas/Paciente'], cp.map(r=>({cells:[r[0],r[1],r[2],r[3],r[4]]})));
+
+  const enf = [['Edivanice',284,274,242,266,'↓ 42'],['Ivanilda',153,140,157,150,'↑ 4'],['Paula',190,236,224,217,'↑ 34'],
+    ['Patricia',197,196,206,200,'↑ 9'],['Renata',28,12,20,20,'↓ 8']];
+  groupedBar('cpEnfermagem', enf.map(r=>r[0]),
+    [{label:'Abril', data:enf.map(r=>r[1]), color:COLORS.m1}, {label:'Maio', data:enf.map(r=>r[2]), color:COLORS.m2}, {label:'Junho', data:enf.map(r=>r[3]), color:COLORS.m3}], {dsize:9});
+  table('cpEnfermagemTable', ['Auditora','Abril','Maio','Junho','Média Tri','Variação'], [
+    ...enf.map(r=>({cells:[r[0],r[1],r[2],r[3],`<b>${r[4]}</b>`,vspan(r[5])]})),
+    {cells:['<b style="color:var(--text)">Total Equipe</b>','852','858','849','<b>2.559</b>',vspan('↓ 3')], total:true}]);
+
+  const med = [['Samuel',146,155,173,158,'↑ 27'],['Ítalo',111,111,119,114,'↑ 8'],['André',45,9,16,23,'↓ 29'],['PJ Médicas Primavera','-',87,73,60,'↓ 14']];
+  groupedBar('cpMedica', med.map(r=>r[0]),
+    [{label:'Abril', data:med.map(r=>r[1]==='-'?0:r[1]), color:COLORS.m1}, {label:'Maio', data:med.map(r=>r[2]), color:COLORS.m2}, {label:'Junho', data:med.map(r=>r[3]), color:COLORS.m3}], {dsize:9});
+  table('cpMedicaTable', ['Auditor','Abril','Maio','Junho','Média Tri','Variação'], [
+    ...med.map(r=>({cells:[r[0],r[1],r[2],r[3],`<b>${r[4]}</b>`,vspan(r[5])]})),
+    {cells:['<b style="color:var(--text)">Total Equipe</b>','302','362','381','<b>1.045</b>',vspan('↑ 79')], total:true}]);
+};
+
+initFns['con-des'] = function(){
+  lineChart('cdEvolucao', ['janeiro/26','fevereiro/26','março/26','abril/26','maio/26','junho/26'],
+    [{label:'Visitas realizadas', data:[1466,1185,1261,1154,1220,1230], color:COLORS.blue}]);
+
+  lineChart('cdAtrasoLine', ['jan/26','fev/26','mar/26','abr/26','mai/26','jun/26'],
+    [{label:'Índice de Atraso', data:[8,8,18,20,9,9], color:COLORS.red}], {suffix:'%', max:25});
+
+  const atrasos = [113,98,232,237,108,121];
+  groupedBar('cdAtrasoBar', ['JAN','FEV','MAR','ABR','MAI','JUN'], [{label:'Atrasos', data:atrasos, color:COLORS.red}], {legend:false, dsize:11});
+
+  // Meta diferenciada: São Marcelo e Recomeçar (perfil de longa permanência) = até 50 dias, ambos dentro da meta (verde).
+  // H. Primavera e H. Cirurgia estão em alta consistente frente à meta geral (3–5 dias) — destacados em vermelho.
+  const tmpEnfWithinDiffMeta = ['Recomeçar','São Marcelo'];
+  const tmpEnfRising = ['H. Primavera','H. Cirurgia'];
+  const tmpEnf = [['Recomeçar',45],['São Marcelo',42],['H. Primavera',32],['H. Cirurgia',14],['H. Coração',12],['H. Renascença',10],['H. Santa Isabel',9]];
+  const tmpEnfColors = tmpEnf.map(r=> tmpEnfWithinDiffMeta.includes(r[0]) ? COLORS.green : (tmpEnfRising.includes(r[0]) ? COLORS.red : COLORS.blue));
+  hBar('cdTmpEnf', tmpEnf.map(r=>r[0]), tmpEnf.map(r=>r[1]), COLORS.blue, {dsize:11, colors:tmpEnfColors});
+  table('cdTmpEnfTable', ['Prestador','Abril','Maio','Junho','Variação'], [
+    {cells:['Recomeçar','48','42','45',vspanInv('↓ 3 dias')]},
+    {cells:['São Marcelo','45','46','42',vspanInv('↓ 3 dias')]},
+    {cells:['H. Primavera','21','28','32',vspanInv('↑ 11 dias')], alert:true},
+    {cells:['H. Cirurgia','8','11','14',vspanInv('↑6 dias')], alert:true},
+    {cells:['H. Coração','11','20','12',vspanInv('↑ 1 dia')]},
+    {cells:['H. Renascença','10','7','10',vspanInv('MANTIDO')]},
+    {cells:['H. Santa Isabel','10','9','9',vspanInv('↓ 1 dia')]},
+  ]);
+
+  const tmpUti = [['H. Primavera',36],['H. Coração',20],['H. Santa Isabel',16],['H. Cirurgia',13],['H. Renascença',10]];
+  hBar('cdTmpUti', tmpUti.map(r=>r[0]), tmpUti.map(r=>r[1]), COLORS.green, {dsize:11});
+  table('cdTmpUtiTable', ['Prestador','Abril','Maio','Junho','Variação'], [
+    {cells:['H. Primavera','46','17','36',vspanInv('↓ 10 dias')]},
+    {cells:['H. Coração','41','8','20',vspanInv('↓ 21 dias')]},
+    {cells:['H. Santa Isabel','9','10','16',vspanInv('↑ 7 dias')], alert:true},
+    {cells:['H. Cirurgia','8','9','13',vspanInv('↑ 5 dias')], alert:true},
+    {cells:['H. Renascença','8','16','10',vspanInv('↑ 2 dias')]},
+  ]);
+};
+
+initFns['retro-prod'] = function(){
+  table('rrGeralTable', ['Métrica','Abril','Maio','Junho','Variação (Mai→Jun)'], [
+    {cells:['Total de Contas Auditadas','8.075','8.755','<b style="color:var(--teal)">9.601</b>', vspan('↑ 9,7%')]},
+    {cells:['Total de Recursos Apresentados','528','579','<b style="color:var(--teal)">522</b>', vspanInv('↓ 9,8%')]},
+    {cells:['Quantidade de Enfermeiros Auditores','13','13','<b style="color:var(--teal)">13</b>', vspan('— 0%')]},
+    {cells:['Quantidade de Prestadores Auditados','24','23','<b style="color:var(--teal)">23</b>', vspan('— 0%')]},
+    {cells:['Percentual de Recursos (%)','6,54%','6,6%','<b style="color:var(--teal)">5,44%</b>', vspanInv('↓ 1,16 p.p.')]},
+  ]);
+  // Nota: variação de "Percentual de Recursos" é em pontos percentuais (p.p.), não % relativa, por ser um indicador que já é percentual.
+
+  const prest = [
+    ['Hospital Renascença',3908,3469,3283],
+    ['Hospital Primavera',861,897,1690],
+    ['Ipes',129,769,650],
+    ["Núcleo de Oncologia (NOS)",52,130,518],
+    ['Constat',703,698,431],
+    ['Vitta',94,148,386],
+    ['Clínica e Matern. St Helena',257,273,282],
+    ['Hospital Cirurgia',255,270,246],
+    ['Decós',331,194,244],
+    ['Instituto de Hemoterapia (IHHS)',238,278,242],
+    ['Hospital São Lucas',203,302,211],
+    ['Oncohematos',124,36,209],
+    ['Helpmed',51,162,190],
+    ['Hospital do Coração',160,137,179],
+    ['San Giovanni',87,98,178],
+    ['Hospital Santa Izabel',118,127,148],
+    ['Hospital de Olhos',176,174,135],
+    ['Angiocor',108,81,121],
+    ['Oncobrasil',72,82,84],
+    ['Avosos',79,320,72],
+    ['Clínica São Marcelo',53,53,50],
+    ['Recomeçar',0,46,41],
+    ['SOS',12,11,11],
+    ['Saúde Suporte*',0,2,0],
+    ['Unimed',0,2,0],
+  ];
+  // Variação calculada apenas Maio→Junho (pedido do usuário); Média = (Abril+Maio+Junho)/3
+  table('rrPrestadoresTable', ['Prestador','Abril','Maio','Junho','Média Tri','Variação (Mai→Jun)'],
+    prest.map(r=>{
+      const [nome,abr,mai,jun] = r;
+      const media = (abr+mai+jun)/3;
+      let varStr;
+      if(mai === 0){ varStr = jun===0 ? '— 0%' : '— (sem base em Maio)'; }
+      else{ const pct = (jun-mai)/mai*100; varStr = (pct>=0?'+':'') + pct.toFixed(1).replace('.',',') + '%'; }
+      return {cells:[
+        `<b style="color:var(--text)">${nome}</b>`, fmt(abr), fmt(mai), `<b>${fmt(jun)}</b>`,
+        media.toLocaleString('pt-BR',{minimumFractionDigits:1, maximumFractionDigits:1}), vspan(varStr)
+      ]};
+    }));
+
+  groupedBar('rrTopGrow', ['Oncohematos','Núcleo de Oncologia (NOS)','Hospital Primavera'],
+    [{label:'Maio', data:[36,130,897], color:'rgba(61,220,132,0.35)'}, {label:'Junho', data:[209,518,1690], color:COLORS.green}], {horizontal:true, dsize:10});
+  groupedBar('rrTopDrop', ['Avosos','Constat','Hospital Renascença'],
+    [{label:'Maio', data:[320,698,3469], color:'rgba(242,73,92,0.35)'}, {label:'Junho', data:[72,431,3283], color:COLORS.red}], {horizontal:true, dsize:10});
+
+  const primaveraData = [['Internamento',227,244],['Oncologia',119,128],['Pronto Atend. Urgência',23,29],['SADT',528,1289]];
+  table('rrPrimaveraTable', ['Tipo de Atendimento','Maio','Junho','Variação'], primaveraData.map(([nome,mai,jun])=>{
+    const pct = mai ? ((jun-mai)/mai*100) : null;
+    const vs = pct===null ? '—' : (pct>=0?'+':'') + pct.toFixed(1).replace('.',',') + '%';
+    return {cells:[`<b style="color:var(--text)">${nome}</b>`, fmt(mai), `<b>${fmt(jun)}</b>`, vspan(vs)], alert: nome==='SADT'};
+  }));
+
+  table('rrTipoTable', ['Tipo de Atendimento','Quantidade'], [
+    {cells:['Home Care - AD','15']},{cells:['Home Care - Gerenciamento','35']},{cells:['Home Care - Hospitalar','326']},
+    {cells:['Home Care - ID','83']},{cells:['Home Care - Remoção','173']},{cells:['Internamento','1.558']},
+    {cells:['Internamento Psiquiátrico','43']},{cells:['Internamento Day Psiquiátrico','24']},{cells:['Oncologia','1.683']},
+    {cells:['Pronto Atendimento - Urgência','3.039']},{cells:['SADT','2.622']},
+    {cells:['<b style="color:var(--text)">Total Geral</b>','<b style="color:var(--teal)">9.601</b>'], total:true}]);
+
+  const auditoresTotal = [['Marilia',1484],["Maria D'Coeli",1386],['Mônica',1357],['Luciana',931],['Ronaide',829],
+    ['Inessa',809],['Michelle',676],['Ana Fátima',620],['Mara',431],['Clarissa',365],['Genisete',256],['Marise',246],['Renata',211]];
+  hBar('rrAuditorTotal', auditoresTotal.map(r=>r[0]), auditoresTotal.map(r=>r[1]), COLORS.blue, {dsize:9.5});
+
+  const am = [['Marilia',1561,1728,1484],["Maria D'Coeli",1309,1515,1386],['Mônica',1273,1330,1357],['Luciana',491,474,931],
+    ['Ronaide',176,450,829],['Inessa',425,476,809],['Michelle',332,364,676],['Ana Fátima',426,562,620],['Mara',832,698,431],
+    ['Clarissa',506,331,365],['Genisete',286,2270,256],['Marise',255,255,246],['Renata',203,302,211]];
+  stackedBar('rrAuditorMensal', am.map(r=>r[0]),
+    [{label:'Abril', data:am.map(r=>r[1]), color:COLORS.m1}, {label:'Maio', data:am.map(r=>r[2]), color:COLORS.m2}, {label:'Junho', data:am.map(r=>r[3]), color:COLORS.m3}],
+    {lfont:9.5});
+
+  const rec = [['Clínica e Matern. St Helena',282,6,'2,13%',false],['Constat',431,44,'10,21%',false],['Decós',244,35,'14,34%',false],
+    ['Hospital Cirurgia',246,46,'18,70%',true],['Hospital do Coração',179,30,'16,76%',true],['Hospital Primavera',1690,87,'5,15%',false],
+    ['Hospital Renascença',3283,189,'5,76%',false],['Hospital São Lucas',211,53,'25,12%',true],['Núcleo de Oncologia (NOS)',518,2,'0,39%',false],
+    ['Oncohematos',209,23,'11,00%',false],['Onco Brasil',84,7,'8,33%',false]];
+  table('rrRecursosTable', ['Prestador','Quantidade Apresentada','Recursos','Índice de Retrabalho (%)'],
+    rec.map(r=>({cells:[r[0], fmt(r[1]), r[2], r[3]], alert:r[4]})));
+
+  // Carga horária semanal por médico (informada pelo usuário) — usada para calcular a média de contas/hora.
+  // Parâmetro: total de contas no trimestre (abr–jun/2026) ÷ (carga horária semanal × 13 semanas, período exato de 91 dias do trimestre).
+  const horasSemana = {'LUCAS':20, 'FELIPE':20, 'DAVI':15, 'MARIA DO CARMO':16, 'MARCO ANTÔNIO':15, 'CAMYLLA':15, 'VERA':16};
+  const SEMANAS_TRIMESTRE = 13;
+  // "Perícia Presencial" foi removida da lista de prestadores de Camylla e Marco Antônio (não é um prestador,
+  // e sim uma atividade interna) — o total de cada um foi recalculado somando apenas os prestadores restantes.
+  const medicos = [
+    ['LUCAS', [['Coopanest',519],['Prestadores PJ',947]]],
+    ['FELIPE', [['Coopanest',1040]]],
+    ['DAVI', [['Hospital de Olhos',66],['Hospital Santa Isabel',21],['Angiocor',75],['Clínica e Maternidade Santa Helena',31],['Decós',62],['PJ Ipes',528]]],
+    ['MARIA DO CARMO', [['Angiovascular',28],['Antônio Alberto e Waldimary',1],['Araújo e Hora',25],['Cabeça e Pescoço',28],
+      ['Cerne',18],['CHABP',1],['Clínica do Ombro',84],['Dorothy',2],['Endocentro',7],['Instituto Catarata',13],['Instituto de ORL',18],
+      ['IOCM',133],['LR',8],['Mastoclin',9],['Gastrus',10],['Oftalmos',257],['Oncocar',6],['ORL Odonto',3],['P&G',8],['San Juan',2],
+      ['Santa Cecília',57],['Semep',9],['SGE',9],['SGEAAA',4],['Socia',1]]],
+    ['MARCO ANTÔNIO', [['Hospital Cirurgia',299],['Hospital do Coração',143],['Sarasqueta e Fernando Coelho',14],['SPA Ipes',152]]],
+    ['CAMYLLA', [['Hospital São Lucas',211],['Hospital Renascença',225]]],
+    ['VERA', [['Hospital Primavera',239]]],
+  ];
+  table('rrMedicoTable', ['Médico','Total','Contas/Hora','Detalhamento por Prestador'], medicos.map(([nome,itens])=>{
+    const total = itens.reduce((s,[,v])=>s+v, 0);
+    const detailHtml = itens.map(([n,v])=>`${n}: <b style="color:var(--text)">${fmt(v)}</b>`).join(' &nbsp;·&nbsp; ');
+    const n = itens.length;
+    const hSemana = horasSemana[nome];
+    const horasTri = hSemana * SEMANAS_TRIMESTRE;
+    const contasHora = hSemana ? (total/horasTri) : null;
+    const contasHoraStr = contasHora===null ? '—' : contasHora.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2});
+    return {cells:[
+      `<b style="color:var(--text)">${nome}</b>`,
+      `<b style="color:var(--teal)">${fmt(total)}</b>`,
+      `<span title="${hSemana}h/semana × ${SEMANAS_TRIMESTRE} semanas = ${horasTri}h no trimestre">${contasHoraStr}</span>`,
+      `<details class="med-detail"><summary>Ver ${n} prestador${n>1?'es':''}</summary><div class="items">${detailHtml}</div></details>`
+    ]};
+  }));
+};
+
+/* =========================================================================
+   TABS
+   ========================================================================= */
+const themes = ['overview','reg-prod','reg-des','reg-vol','con-prod','con-des','retro-prod'];
+const initialized = {};
+function replayChartAnimations(id){
+  const section = document.getElementById('section-'+id);
+  if(!section || !window.Chart || !Chart.getChart) return;
+  section.querySelectorAll('canvas').forEach(canvas=>{
+    const chart = Chart.getChart(canvas);
+    if(chart){
+      try{ chart.reset(); chart.update(); }catch(e){}
+    }
+  });
+}
+function showTheme(id){
+  themes.forEach(t=>{
+    document.getElementById('section-'+t).classList.toggle('active', t===id);
+  });
+  document.querySelectorAll('.tab-btn[data-theme]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.theme===id);
+  });
+  renderKpis(id);
+  if(!initialized[id]){ initFns[id](); initialized[id] = true; }
+  else { replayChartAnimations(id); }
+}
+window.showTheme = showTheme;
+document.querySelectorAll('.tab-btn[data-theme]').forEach(btn=>{
+  btn.addEventListener('click', ()=> showTheme(btn.dataset.theme));
+});
+showTheme('overview');
+
+/* =========================================================================
+   EXPORTAÇÃO EM PDF
+   ========================================================================= */
+let __preprintTheme = null;
+function exportPdf(){
+  __preprintTheme = themes.find(t=> document.getElementById('section-'+t).classList.contains('active')) || 'overview';
+  themes.forEach(t=>{
+    document.getElementById('section-'+t).classList.add('active');
+    if(!initialized[t]){ initFns[t](); initialized[t] = true; }
+  });
+  renderKpis('overview');
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      if (window.Chart && Chart.instances) {
+        Object.values(Chart.instances).forEach(c=>{ try{ c.resize(); }catch(e){} });
+      }
+      window.print();
+    }, 350);
+  });
+}
+document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+window.addEventListener('afterprint', function(){
+  if(__preprintTheme){ showTheme(__preprintTheme); }
+});
+
+} // end initDashboard
+
+function waitForChartAndInit(retries){
+  if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') { initDashboard(); }
+  else if (retries > 0) { setTimeout(()=>waitForChartAndInit(retries-1), 150); }
+  else {
+    document.getElementById('kpiGrid').innerHTML = '<div class="kpi c-red"><div class="kpi-label">Erro</div><div class="kpi-value" style="font-size:15px">Não foi possível carregar as bibliotecas de gráficos. Verifique sua conexão e recarregue a página.</div></div>';
+  }
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', ()=>waitForChartAndInit(50)); }
+else { waitForChartAndInit(50); }
+</script>
+</body>
+</html>
